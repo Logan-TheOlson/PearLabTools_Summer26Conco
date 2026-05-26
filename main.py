@@ -68,9 +68,8 @@ def process_dat(input_path):
     df = df.copy()
 
     df['Field (T)'] = df['Magnetic Field (Oe)'].astype(float) * 1e-4
-    df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
-        df['Magnetization (A m^2/kg)'] = df['Moment (A m^2)'] / (mass * 1e-3)
+        df['Magnetization (A m^2/kg)'] = df['Moment (emu)'] / (mass * 1e-3)
 
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
 
@@ -148,7 +147,6 @@ class App(tk.Tk):
                  bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", pady=(0, 6))
         convs = [
             ("Magnetic Field",  "Oe  →  T",        "× 1 × 10⁻⁴"),
-            ("Moment",          "emu →  A·m²",      "× 1 × 10⁻³"),
             ("Magnetization",   "emu →  A·m²/kg",   "÷ sample mass"),
         ]
         for label, conv, factor in convs:
