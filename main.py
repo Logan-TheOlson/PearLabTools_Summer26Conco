@@ -1,6 +1,10 @@
-
 import pandas as pd
 
-df = pd.read_csv('InputEx.DAT', delimiter=",", skiprows=34)
+df = pd.read_table('InputEx.DAT', delimiter=",", skiprows=34)
 
-print(df.head())
+with open('InputEx.DAT', 'r') as f:
+    for line in f:
+        if 'SAMPLE_MASS' in line:
+            mass = float(line.strip().split(',')[1])
+            break
+
