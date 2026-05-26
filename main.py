@@ -17,5 +17,8 @@ df.iloc[:,1]= df.iloc[:, 1].astype(float) * 10**(-4)
 #Moment to magnetic moment /mass
 df.iloc[:,2]= df.iloc[:, 2].astype(float)/(mass/10**6)
 
+df.rename(columns={'Moment (emu)':'Moment (J/T)'}, inplace=True)
+df.rename(columns={'Magnetic Field (Oe)':'Magnetic Field (T)'}, inplace=True)
+
 print(df)
 print("The mass of the sample is "+str(mass)+ " mg")
