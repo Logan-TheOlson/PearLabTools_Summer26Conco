@@ -1,16 +1,18 @@
 import os
 import pandas as pd
 
+# Method Declaration
 def process_dat(input_path):
+    # Set base directory to assist in output path definition
     output_dir = os.path.join(os.path.dirname(os.path.abspath(input_path)), "output")
     os.makedirs(output_dir, exist_ok=True)
-
     dat_name = os.path.basename(input_path)
 
-    # Extract mass
+    # Parse for mass
     mass = None
     with open(input_path, 'r') as f:
         for line in f:
+            # Find line with SAMPLE_MASS in it and extract the float
             if 'SAMPLE_MASS' in line:
                 parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
                 try:
@@ -28,12 +30,15 @@ def process_dat(input_path):
     sample_line = lines[data_start + 1]
     delimiter = '\t' if '\t' in sample_line else ','
 
+    # Read the data from 3 important columns using detected start and delimiter
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
     df = df[['Temperature (K)', 'Magnetic Field (Oe)', 'Moment (emu)']]
+    # Drop Empty and control values
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'] != '0']
     df = df.copy()
 
+    # Cast, clean, and convert data
     df['Field (T)']               = df['Magnetic Field (Oe)'].astype(float) * 1e-4
     df['Moment (A m^2)']          = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
@@ -49,6 +54,7 @@ def process_dat(input_path):
         ('300K', 299, 301),
     ]
 
+    # Selectively compile columns into new table
     frames = []
     first_field_added = False
     for label, lo, hi in bands:
@@ -65,6 +71,7 @@ def process_dat(input_path):
 
         frames.append(band)
 
+    # Prepare and output converted CSV file
     out_df = pd.concat(frames, axis=1)
 
     csv_name = os.path.splitext(dat_name)[0] + "_converted.csv"
