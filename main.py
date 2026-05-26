@@ -1,8 +1,15 @@
 import pandas as pd
 
-df = pd.read_table('InputEx.DAT', delimiter=",", skiprows=34)
+#To input a new DAT file for processing drag the file from
+#file manager to the left column in the same subfolder as the main.py program
+#To then run the program, update the fileName variable with the
+# name of the new file and run
 
-with open('InputEx.DAT', 'r') as f:
+fileName="InputEx.DAT"
+
+df = pd.read_table(fileName, delimiter=",", skiprows=34)
+
+with open(fileName, 'r') as f:
     for line in f:
         if 'SAMPLE_MASS' in line:
             mass = float(line.strip().split(',')[1])
