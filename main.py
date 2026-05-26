@@ -74,16 +74,29 @@ def process_dat(input_path):
 
     temp = 'Temperature (K)'
     bands = [
-        ('50K',  49,  51),
+        ('50K', 49, 51),
         ('150K', 149, 151),
         ('300K', 299, 301),
     ]
 
     frames = []
+
     for label, low, high in bands:
         band = df[(df[temp] >= low) & (df[temp] <= high)].copy()
-        band.columns = [f"{c} [{label}]" for c in band.columns]
         band = band.reset_index(drop=True)
+
+        # Always keep temperature + magnetization
+        keep_cols = ["Temperature (K)", "Magnetization (A m^2/kg)"]
+
+        # ONLY 50K keeps magnetic field
+        if label == "50K":
+            keep_cols.insert(1, "Field (T)")
+
+        band = band[keep_cols]
+
+        # rename columns with band label
+        band.columns = [f"{c} [{label}]" for c in band.columns]
+
         frames.append(band)
 
     out_df = pd.concat(frames, axis=1)
@@ -99,7 +112,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("VSM Converter")
-        self.geometry("1000x800")
+        self.geometry("500x400")
         self.minsize(1000, 800)
         self.configure(bg=BG)
         self.iconbitmap(resource_path("icon.ico"))
