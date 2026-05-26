@@ -2416,6 +2416,10 @@
    "C:\\Users\\Logan's "
    'Asus\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pprint.py',
    'PYMODULE'),
+  ('processing',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\processing.py',
+   'PYMODULE'),
   ('py_compile',
    "C:\\Users\\Logan's "
    'Asus\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\py_compile.py',

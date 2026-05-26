@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Converted Values">
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Separated Temperature Bands">
+      <change afterPath="$PROJECT_DIR$/processing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/Analysis-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/Analysis-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/EXE-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/EXE-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/PKG-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/PKG-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/VSM Converter.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/VSM Converter.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/base_library.zip" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/base_library.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/VSM Converter/warn-VSM Converter.txt" beforeDir="false" afterPath="$PROJECT_DIR$/build/VSM Converter/warn-VSM Converter.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/VSM Converter.exe" beforeDir="false" afterPath="$PROJECT_DIR$/dist/VSM Converter.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -20,12 +14,24 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="origin/main" />
   </component>
   <component name="Git.Settings">
     <option name="INCOMING_COMMITS_CHECK_STRATEGY" value="FETCH" />
     <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -37,12 +43,12 @@
   ],
   &quot;lastFilter&quot;: {}
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Logan-TheOlson/Summer2026_ConcoPhys.git",
-    "accountId": "0cd7e445-5873-4030-bb89-aecf17d8cb9a"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Logan-TheOlson/Summer2026_ConcoPhys.git&quot;,
+    &quot;accountId&quot;: &quot;0cd7e445-5873-4030-bb89-aecf17d8cb9a&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7,
   &quot;fromUser&quot;: false
@@ -61,7 +67,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Experimental-Build",
     "git.auto.fetch.suggestion.counter": "1",
     "last_opened_file_path": "C:/Users/redpa/PycharmProjects/Summer2026_ConcoPhys",
     "node.js.detected.package.eslint": "true",
@@ -120,7 +126,8 @@
       <updated>1779816683961</updated>
       <workItem from="1779816685276" duration="3261000" />
       <workItem from="1779821166691" duration="3318000" />
-      <workItem from="1779825755783" duration="2900000" />
+      <workItem from="1779825755783" duration="3017000" />
+      <workItem from="1779829712100" duration="631000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -178,7 +185,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779823688914</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Separated Temperature Bands">
+      <option name="closed" value="true" />
+      <created>1779828773818</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1779828773818</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,9 +213,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="trest" />
     <MESSAGE value="Converted Values" />
-    <option name="LAST_COMMIT_MESSAGE" value="Converted Values" />
+    <MESSAGE value="Separated Temperature Bands" />
+    <option name="LAST_COMMIT_MESSAGE" value="Separated Temperature Bands" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779828618250" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779830068533" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
