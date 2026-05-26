@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Removed the Magnetic Moment">
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Removed the Magnetic Field for 150K and 300K">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/InputEx_converted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/output/InputEx_converted.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/C1S2_HYST_converted.csv" beforeDir="false" afterPath="$PROJECT_DIR$/output/C1S2_HYST_converted.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +110,7 @@
       <updated>1779816683961</updated>
       <workItem from="1779816685276" duration="3261000" />
       <workItem from="1779821166691" duration="3318000" />
+      <workItem from="1779833110774" duration="378000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -192,7 +192,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779831103003</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Removed the Magnetic Field for 150K and 300K">
+      <option name="closed" value="true" />
+      <created>1779832069028</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1779832069028</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,9 +221,10 @@
     <MESSAGE value="trest" />
     <MESSAGE value="Converted Values" />
     <MESSAGE value="Removed the Magnetic Moment" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed the Magnetic Moment" />
+    <MESSAGE value="Removed the Magnetic Field for 150K and 300K" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed the Magnetic Field for 150K and 300K" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779831984679" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779833120520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
