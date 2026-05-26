@@ -22,4 +22,3 @@ df.rename(columns={'Magnetic Field (Oe)':'Magnetic Field (T)'}, inplace=True)
 
 print(df)
 print("The mass of the sample is "+str(mass)+ " mg")
-#push
