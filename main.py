@@ -8,3 +8,9 @@ with open('InputEx.DAT', 'r') as f:
             mass = float(line.strip().split(',')[1])
             break
 
+df = df.iloc[:,[2,3,4]]
+df = df.dropna(subset=['Moment (emu)'])
+df = df.loc[df['Moment (emu)'] != '0']
+
+print(df)
+print(mass)
