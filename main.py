@@ -72,7 +72,7 @@ def process_dat(input_path):
 
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
 
-    temp_col = 'Temperature (K)'
+    temp = 'Temperature (K)'
     bands = [
         ('50K',  49,  51),
         ('150K', 149, 151),
@@ -80,8 +80,8 @@ def process_dat(input_path):
     ]
 
     frames = []
-    for label, lo, hi in bands:
-        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy()
+    for label, low, high in bands:
+        band = df[(df[temp] >= low) & (df[temp] <= high)].copy()
         band.columns = [f"{c} [{label}]" for c in band.columns]
         band = band.reset_index(drop=True)
         frames.append(band)
