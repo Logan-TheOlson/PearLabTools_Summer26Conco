@@ -1,0 +1,18 @@
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import pandas as pd\r\n\r\ndf = pd.read_table('InputEx.DAT', delimiter=\",\", skiprows=34)\r\n\r\nwith open('InputEx.DAT', 'r') as f:\r\n    for line in f:\r\n        if 'SAMPLE_MASS' in line:\r\n            mass = float(line.strip().split(',')[1])\r\n            break\r\n\r\ndf = df.iloc[:,[2,3,4]]\r\ndf = df.dropna(subset=['Moment (emu)'])\r\ndf = df.loc[df['Moment (emu)'] != '0']\r\n\r\n#Converting to Tesla\r\ndf.iloc[:,1]= df.iloc[:, 1].astype(float) * 10**(-4)\r\n#Moment to magnetic moment /mass\r\ndf.iloc[:,2]= df.iloc[:, 2].astype(float)/(mass/10**6)\r\n\r\nprint(df)\r\nprint(\"The mass of the sample is \"+str(mass)+ \" mg\")\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.py b/main.py
+--- a/main.py	(revision 78924ea4a7a96550354b1899de326f625b284d5d)
++++ b/main.py	(date 1779823171190)
+@@ -17,5 +17,7 @@
+ #Moment to magnetic moment /mass
+ df.iloc[:,2]= df.iloc[:, 2].astype(float)/(mass/10**6)
+ 
++
++
+ print(df)
+ print("The mass of the sample is "+str(mass)+ " mg")
