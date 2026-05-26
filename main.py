@@ -36,48 +36,65 @@ FONT_MONO  = ("Consolas", 10)
 FONT_UI    = ("Segoe UI", 10)
 
 # ── Processing logic ──────────────────────────────────────────────────────────
-def process_dat(input_path, output_dir):
-    """
-    Creates output_dir, copies the original .DAT into it, and writes
-    a converted .CSV alongside it. Returns (row_count, mass, csv_path).
-    """
+def process_dat(input_path):
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(input_path)), "output")
     os.makedirs(output_dir, exist_ok=True)
 
-    # Copy original DAT
     dat_name = os.path.basename(input_path)
-    shutil.copy2(input_path, os.path.join(output_dir, dat_name))
 
-    # Extract mass
     mass = None
     with open(input_path, 'r') as f:
         for line in f:
             if 'SAMPLE_MASS' in line:
-                mass = float(line.strip().split(',')[1])
+                parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
+                try:
+                    mass = float(parts[1])
+                except (IndexError, ValueError):
+                    mass = None
                 break
 
     with open(input_path, 'r') as f:
         lines = f.readlines()
     data_start = next(i for i, l in enumerate(lines) if l.strip() == '[Data]')
 
-    df = pd.read_csv(input_path, skiprows=data_start + 1)
-    df = df.iloc[:, [2, 3, 4]]
+    # Auto-detect delimiter from the first data line
+    sample_line = lines[data_start + 1]
+    delimiter = '\t' if '\t' in sample_line else ','
+
+    df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
+    df = df[['Temperature (K)', 'Magnetic Field (Oe)', 'Moment (emu)']]
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'] != '0']
     df = df.copy()
 
-    df['Field (T)']               = df['Magnetic Field (Oe)'].astype(float) * 1e-4
-    df['Moment (A·m²)']           = df['Moment (emu)'].astype(float) * 1e-3
+    df['Field (T)'] = df['Magnetic Field (Oe)'].astype(float) * 1e-4
+    df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
-        df['Magnetization (A·m²/kg)'] = df['Moment (A·m²)'] / (mass * 1e-3)
+        df['Magnetization (A m^2/kg)'] = df['Moment (A m^2)'] / (mass * 1e-3)
 
-    # Drop raw columns
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
+
+    temp_col = 'Temperature (K)'
+    bands = [
+        ('50K',  49,  51),
+        ('150K', 149, 151),
+        ('300K', 299, 301),
+    ]
+
+    frames = []
+    for label, lo, hi in bands:
+        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy()
+        band.columns = [f"{c} [{label}]" for c in band.columns]
+        band = band.reset_index(drop=True)
+        frames.append(band)
+
+    out_df = pd.concat(frames, axis=1)
 
     csv_name = os.path.splitext(dat_name)[0] + "_converted.csv"
     csv_path = os.path.join(output_dir, csv_name)
-    df.to_csv(csv_path, index=False)
+    out_df.to_csv(csv_path, index=False)
 
-    return len(df), mass, csv_path
+    return len(out_df), mass, csv_path, output_dir
 
 # ── GUI ───────────────────────────────────────────────────────────────────────
 class App(tk.Tk):
@@ -88,8 +105,7 @@ class App(tk.Tk):
         self.minsize(1000, 800)
         self.configure(bg=BG)
         self.iconbitmap(resource_path("icon.ico"))
-        self._input_path  = tk.StringVar()
-        self._output_dir  = tk.StringVar()
+        self._input_path = tk.StringVar()
         self._build()
 
     def _build(self):
@@ -121,23 +137,13 @@ class App(tk.Tk):
                  highlightcolor=ACCENT).grid(row=0, column=0, sticky="ew", ipady=9, ipadx=10)
         self._pill_btn(row_in, "Browse", self._browse_input).grid(row=0, column=1, padx=(10, 0))
 
-        # Output folder
-        tk.Label(body, text="OUTPUT FOLDER", font=("Segoe UI Semibold", 8),
-                 bg=BG, fg=TEXT_DIM).grid(row=2, column=0, sticky="w", pady=(0, 5))
-        tk.Label(body, text="A new folder will be created containing the original .DAT and the converted .CSV",
-                 font=("Segoe UI", 8), bg=BG, fg=TEXT_DIM).grid(row=3, column=0, sticky="w", pady=(0, 5))
-        row_out = tk.Frame(body, bg=BG)
-        row_out.grid(row=4, column=0, sticky="ew", pady=(0, 24))
-        row_out.columnconfigure(0, weight=1)
-        tk.Entry(row_out, textvariable=self._output_dir, font=FONT_MONO,
-                 bg=SURFACE, fg=TEXT, insertbackground=TEXT, relief="flat",
-                 highlightthickness=1, highlightbackground=BORDER,
-                 highlightcolor=ACCENT).grid(row=0, column=0, sticky="ew", ipady=9, ipadx=10)
-        self._pill_btn(row_out, "Browse", self._browse_output).grid(row=0, column=1, padx=(10, 0))
+        # Output note
+        tk.Label(body, text="Output saves to an 'output' folder next to the input file.",
+                 font=("Segoe UI", 9), bg=BG, fg=TEXT_DIM).grid(row=2, column=0, sticky="w", pady=(0, 20))
 
         # Conversions info box
         info = tk.Frame(body, bg=SURFACE, pady=12, padx=16)
-        info.grid(row=5, column=0, sticky="ew", pady=(0, 22))
+        info.grid(row=3, column=0, sticky="ew", pady=(0, 22))
         tk.Label(info, text="CONVERSIONS APPLIED", font=("Segoe UI Semibold", 8),
                  bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", pady=(0, 6))
         convs = [
@@ -150,10 +156,27 @@ class App(tk.Tk):
             r.pack(fill="x", pady=2)
             tk.Label(r, text=label, font=FONT_MONO, bg=SURFACE, fg=TEXT,
                      width=16, anchor="w").pack(side="left")
-            tk.Label(r, text=conv,  font=FONT_MONO, bg=SURFACE, fg=TEXT_DIM,
+            tk.Label(r, text=conv, font=FONT_MONO, bg=SURFACE, fg=TEXT_DIM,
                      width=16, anchor="w").pack(side="left")
             tk.Label(r, text=f"({factor})", font=FONT_MONO, bg=SURFACE,
                      fg=TEXT_DIM).pack(side="left")
+
+        # Temperature bands info
+        bands_frame = tk.Frame(body, bg=SURFACE, pady=12, padx=16)
+        bands_frame.grid(row=4, column=0, sticky="ew", pady=(0, 22))
+        tk.Label(bands_frame, text="TEMPERATURE BANDS", font=("Segoe UI Semibold", 8),
+                 bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", pady=(0, 6))
+        bands = [
+            ("50K",  "49 – 51 K"),
+            ("150K", "149 – 151 K"),
+            ("300K", "299 – 301 K"),
+        ]
+        for label, rng in bands:
+            r = tk.Frame(bands_frame, bg=SURFACE)
+            r.pack(fill="x", pady=2)
+            tk.Label(r, text=label, font=FONT_MONO, bg=SURFACE, fg=TEXT,
+                     width=8, anchor="w").pack(side="left")
+            tk.Label(r, text=rng, font=FONT_MONO, bg=SURFACE, fg=TEXT_DIM).pack(side="left")
 
         # Convert button
         self._btn_run = tk.Button(body, text="Convert & Save",
@@ -162,7 +185,7 @@ class App(tk.Tk):
                                   activebackground=ACCENT_DIM, activeforeground="white",
                                   cursor="hand2", command=self._run,
                                   padx=32, pady=12)
-        self._btn_run.grid(row=6, column=0, sticky="ew")
+        self._btn_run.grid(row=5, column=0, sticky="ew")
 
         # ── Status bar ────────────────────────────────────────────────────────
         self._status = tk.StringVar(value="Ready.")
@@ -186,14 +209,6 @@ class App(tk.Tk):
             filetypes=[("DAT files", "*.dat *.DAT"), ("All files", "*.*")])
         if path:
             self._input_path.set(path)
-            if not self._output_dir.get():
-                stem = os.path.splitext(path)[0]
-                self._output_dir.set(stem + "_output")
-
-    def _browse_output(self):
-        path = filedialog.askdirectory(title="Select output folder (will be created if needed)")
-        if path:
-            self._output_dir.set(path)
 
     def _set_status(self, msg, color=TEXT_DIM):
         self._status.set(msg)
@@ -201,29 +216,29 @@ class App(tk.Tk):
 
     def _run(self):
         inp = self._input_path.get().strip()
-        out = self._output_dir.get().strip()
-        if not inp or not out:
-            messagebox.showwarning("Missing paths", "Please select an input file and output folder.")
+        if not inp:
+            messagebox.showwarning("Missing file", "Please select an input file.")
             return
-
         self._btn_run.config(state="disabled", text="Converting…")
         self._set_status("Processing…", ACCENT)
 
         def worker():
             try:
-                rows, mass, csv_path = process_dat(inp, out)
-                self.after(0, lambda: self._done(rows, mass, csv_path))
+                rows, mass, csv_path, output_dir = process_dat(inp)
+                self.after(0, lambda: self._done(rows, mass, csv_path, output_dir))
             except Exception as e:
-                self.after(0, lambda: self._error(str(e)))
-
+                import traceback
+                traceback.print_exc()
+                err = str(e)
+                self.after(0, lambda: self._error(err))
         threading.Thread(target=worker, daemon=True).start()
 
-    def _done(self, rows, mass, csv_path):
+    def _done(self, rows, mass, csv_path, output_dir):
         self._btn_run.config(state="normal", text="Convert & Save")
         mass_str = f"{mass} g" if mass else "not found"
-        self._set_status(f"✓  Done — {rows} rows  ·  Mass: {mass_str}  ·  {self._output_dir.get()}", SUCCESS)
+        self._set_status(f"✓  Done — {rows} rows  ·  Mass: {mass_str}  ·  {output_dir}", SUCCESS)
         messagebox.showinfo("Success",
-            f"Converted {rows} rows.\n\nOutput folder:\n{self._output_dir.get()}\n\n"
+            f"Converted {rows} rows.\n\nOutput folder:\n{output_dir}\n\n"
             f"  • {os.path.basename(self._input_path.get())}  (original)\n"
             f"  • {os.path.basename(csv_path)}  (converted)")
 
@@ -231,7 +246,6 @@ class App(tk.Tk):
         self._btn_run.config(state="normal", text="Convert & Save")
         self._set_status(f"✗  Error: {msg}", ERROR)
         messagebox.showerror("Error", msg)
-
 
 if __name__ == "__main__":
     app = App()
