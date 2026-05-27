@@ -1,5 +1,11 @@
 import os
+
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from numpy.ma.extras import polyfit
+from numpy.polynomial import chebyshev
+
 
 # Method Declaration
 def process_dat(input_path):
@@ -93,17 +99,42 @@ def process_dat(input_path):
 
 def compute_band_50K(bands):
     b = bands['50K']
-    c = b['Magnetization (A m^2/kg)'].to_numpy()
-    print(type(c))
-    print(c)
+    x, y = get_axis(b)
+
+    # Create chebyshev fit to the 5th degree
+    w = np.polynomial.chebyshev.chebfit(x, y,5)
+    # Take third derivative
+    d = np.polynomial.chebyshev.chebder(w, 3)
+    # Generate Points
+    m = np.polynomial.chebyshev.chebval(x, d)
+    # x values of y=zero is where it flattens out
+    # Find these x values
+    roots = np.polynomial.chebyshev.chebroots(d)
+    real_roots = roots[np.isreal(roots)].real
+    # plot as vertical lines
+    for root in real_roots:
+        plt.axvline(x=root, color='black', linewidth=1, linestyle='--')
+
+    plt.scatter(x,y,3)
+    plt.plot(x,m, color='red')
+    plt.show()
     return bands
 
 
 def compute_band_150K(bands):
     b = bands['150K']
+    x, y = get_axis(b)
+
     return bands
 
 
 def compute_band_300K(bands):
     b = bands['300K']
+    x, y = get_axis(b)
+
     return bands
+
+def get_axis(tempBand):
+    magnetization = tempBand['Magnetization (A m^2/kg)'].to_numpy()
+    magneticField = tempBand['Field (T)'].to_numpy()
+    return magneticField, magnetization

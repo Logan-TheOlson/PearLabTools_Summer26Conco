@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Merge remote-tracking branch 'origin/Experimental-Build' into Experimental-Build">
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Added compute methods for each temperature band">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing.py" afterDir="false" />
     </list>
@@ -127,7 +127,7 @@
       <workItem from="1779821166691" duration="3318000" />
       <workItem from="1779825755783" duration="3017000" />
       <workItem from="1779829712100" duration="1356000" />
-      <workItem from="1779893599963" duration="2058000" />
+      <workItem from="1779893599963" duration="5938000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -217,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779830930668</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Added compute methods for each temperature band">
+      <option name="closed" value="true" />
+      <created>1779909200757</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1779909200757</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -240,9 +248,10 @@
     <MESSAGE value="Separated Temperature Bands" />
     <MESSAGE value="Split Processing and Main" />
     <MESSAGE value="Merge remote-tracking branch 'origin/Experimental-Build' into Experimental-Build" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/Experimental-Build' into Experimental-Build" />
+    <MESSAGE value="Added compute methods for each temperature band" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added compute methods for each temperature band" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779908662208" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779913118615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
