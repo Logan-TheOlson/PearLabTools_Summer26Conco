@@ -120,7 +120,6 @@ def compute_band_50K(bands):
     plt.show()
     return bands
 
-
 def compute_band_150K(bands):
     b = bands['150K']
     x, y = get_axis(b)
