@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Removed the Magnetic Field for 150K and 300K">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +112,7 @@
       <workItem from="1779821166691" duration="3318000" />
       <workItem from="1779833110774" duration="780000" />
       <workItem from="1779834186986" duration="386000" />
+      <workItem from="1779907997883" duration="999000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -208,7 +210,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779833690574</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Removed the Magnetic Field for 150K and 300K">
+      <option name="closed" value="true" />
+      <created>1779908037308</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1779908037308</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -233,6 +243,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Removed the Magnetic Field for 150K and 300K" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779834410675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779908266773" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -57,11 +57,9 @@ def process_dat(input_path):
         lines = f.readlines()
     data_start = next(i for i, l in enumerate(lines) if l.strip() == '[Data]')
 
-    # Auto-detect delimiter from the first data line
-    sample_line = lines[data_start + 1]
-    delimiter = '\t' if '\t' in sample_line else ','
+    delimiter = ','
 
-    df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
+    df = pd.read_csv(input_path, skiprows=data_start + 1, sep=',')
     df = df[['Temperature (K)', 'Magnetic Field (Oe)', 'Moment (emu)']]
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'] != '0']
