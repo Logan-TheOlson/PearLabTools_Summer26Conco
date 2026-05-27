@@ -33,7 +33,7 @@ def process_dat(input_path):
     # Read the data from 3 important columns using detected start and delimiter
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
     df = df[['Temperature (K)', 'Magnetic Field (Oe)', 'Moment (emu)']]
-    # Drop Empty and control values
+    # Drop empty and control values
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'] != '0']
     df = df.copy()
@@ -48,19 +48,30 @@ def process_dat(input_path):
 
     # Split by temperature bands
     temp_col = 'Temperature (K)'
-    bands = [
+    band_ranges = [
         ('50K',  49,  51),
         ('150K', 149, 151),
         ('300K', 299, 301),
     ]
 
+    # Separate bands into individual dataframes for arithmetic
+    bands = {}
+    for label, lo, hi in band_ranges:
+        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy()
+        band = band.reset_index(drop=True)
+        bands[label] = band
+
+    # Separate the bands and operate on them
+    bands = compute_band_50K(bands)
+    bands = compute_band_150K(bands)
+    bands = compute_band_300K(bands)
+
     # Selectively compile columns into new table
     frames = []
     first_field_added = False
-    for label, lo, hi in bands:
-        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy()
+    for label, lo, hi in band_ranges:
+        band = bands[label].copy()
         band.columns = [f"{c} [{label}]" for c in band.columns]
-        band = band.reset_index(drop=True)
 
         band = band.drop(columns=[c for c in band.columns if 'Moment' in c], errors='ignore')
 
@@ -79,3 +90,20 @@ def process_dat(input_path):
     out_df.to_csv(csv_path, index=False)
 
     return len(out_df), mass, csv_path, output_dir
+
+def compute_band_50K(bands):
+    b = bands['50K']
+    c = b['Magnetization (A m^2/kg)'].to_numpy()
+    print(type(c))
+    print(c)
+    return bands
+
+
+def compute_band_150K(bands):
+    b = bands['150K']
+    return bands
+
+
+def compute_band_300K(bands):
+    b = bands['300K']
+    return bands
