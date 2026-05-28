@@ -19,3 +19,8 @@ Browse button will display the file path to your given file.
 3) In the bar below the file path bar input the temperatures separated by commas you would like to separate 
 temperature for. Each of these temperatures will have a tolerance of +/- 1K. For example, inputting the values
 50, 150, 300 will output a CSV file containing data for a range of 49-51K, 149-151K, and 299-301K.
+4) Click the Convert & Save button on the bottom of the window to start the program which will begin to 
+Convert the inputed .DAT file into a filtered CSV file. After the program is finished a pop-up will appear
+with the destination of the file. On the bottom of the window, text will also appear containing information on
+the mass of the sample, the number of rows contained in the CSV file, and the location of the saved CSV file
+5) Navigate to the CSV file and drag it onto an open workbook in the Origin 2021 Program.
