@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import threading
 import os
-import shutil
 import ctypes
 import sys
 import pandas as pd
@@ -110,8 +109,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("VSM Converter")
-        self.geometry("500x400")
-        self.minsize(1000, 800)
+        self.geometry("1000x800")
+        self.minsize(500, 400)
         self.configure(bg=BG)
         self.iconbitmap(resource_path("icon.ico"))
         self._input_path = tk.StringVar()
