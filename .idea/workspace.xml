@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Added compute methods for each temperature band">
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="found and implemented algorith for determining where slopes flatten out">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -127,7 +128,8 @@
       <workItem from="1779821166691" duration="3318000" />
       <workItem from="1779825755783" duration="3017000" />
       <workItem from="1779829712100" duration="1356000" />
-      <workItem from="1779893599963" duration="5938000" />
+      <workItem from="1779893599963" duration="6413000" />
+      <workItem from="1779989844318" duration="5579000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -225,7 +227,31 @@
       <option name="project" value="LOCAL" />
       <updated>1779909200757</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="found and implemented algorith for determining where slopes flatten out">
+      <option name="closed" value="true" />
+      <created>1779913454922</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1779913454922</updated>
+    </task>
+    <task id="LOCAL-00014" summary="found and implemented algorith for determining where slopes flatten out">
+      <option name="closed" value="true" />
+      <created>1779913467669</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1779913467669</updated>
+    </task>
+    <task id="LOCAL-00015" summary="found and implemented algorith for determining where slopes flatten out">
+      <option name="closed" value="true" />
+      <created>1779913518938</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1779913518938</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -249,9 +275,10 @@
     <MESSAGE value="Split Processing and Main" />
     <MESSAGE value="Merge remote-tracking branch 'origin/Experimental-Build' into Experimental-Build" />
     <MESSAGE value="Added compute methods for each temperature band" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added compute methods for each temperature band" />
+    <MESSAGE value="found and implemented algorith for determining where slopes flatten out" />
+    <option name="LAST_COMMIT_MESSAGE" value="found and implemented algorith for determining where slopes flatten out" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779913118615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1779996120907" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
