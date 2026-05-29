@@ -66,6 +66,7 @@ def process_dat(input_path, band_temps=None):
     for label, lo, hi in band_ranges:
         band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
         pdata = compute_band(band)
+        sat_Mag = pdata['MS']
         plot_data[label] = pdata
 
         # Check that paramagnetism has been removed
@@ -88,7 +89,7 @@ def process_dat(input_path, band_temps=None):
     csv_path = os.path.join(output_dir, stem + "_converted.csv")
     pd.concat(frames, axis=1).to_csv(csv_path, index=False)
 
-    return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges
+    return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges, sat_Mag
 
 
 def compute_band(band):
@@ -132,8 +133,7 @@ def compute_band(band):
         'corrected': corrected,
         'roots':    roots,
         #Saturation Magnetization
-        'MS':       MS,
-        'sat_field': sat_field,
+        'MS':       MS
     }
 
 def get_axis(band):

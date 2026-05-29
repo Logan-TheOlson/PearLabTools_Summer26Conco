@@ -261,16 +261,16 @@ class VSMModule(tk.Frame):
 
         def worker():
             try:
-                rows, mass, csv_path, output_dir, plot_data, band_ranges = \
+                rows, mass, csv_path, output_dir, plot_data, band_ranges, sat_Mag = \
                     process_dat(inp, band_temps)
                 self.after(0, lambda: self._done(
-                    rows, mass, csv_path, output_dir, plot_data, band_ranges))
+                    rows, mass, sat_Mag, csv_path, output_dir, plot_data, band_ranges))
             except Exception as e:
                 self.after(0, lambda: self._error(str(e)))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _done(self, rows, mass, csv_path, output_dir, plot_data, band_ranges):
+    def _done(self, rows, mass, sat_Mag, csv_path, output_dir, plot_data, band_ranges):
         self._btn_run.config(state="normal", text="Convert & Save")
         self._status_cb(f"✓  Done  ·  {output_dir}", SUCCESS)
 
@@ -279,7 +279,7 @@ class VSMModule(tk.Frame):
         self._draw_preview()
 
         self._readout_mass.set(f"{mass}" if mass else "not found")
-        self._readout_ms.set("—")
+        self._readout_ms.set(f"{sat_Mag}" if sat_Mag else "not found")
         self._readout_mr.set("—")
         self._readout_hc.set("—")
 
