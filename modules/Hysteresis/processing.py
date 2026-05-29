@@ -90,7 +90,6 @@ def process_dat(input_path, band_temps=None):
 
     return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges
 
-
 def compute_band(band):
     if band.empty:
         return {'x': None, 'y': None, 'corrected': None, 'roots': None, 'MS': None, 'sat_field': None}
@@ -121,11 +120,6 @@ def compute_band(band):
         if wing_means:
             # Average the absolute wing means so sign differences don't cancel
             MS = float(np.mean(np.abs(wing_means)))
-
-        # Saturation field: the field magnitude at which saturation begins,
-        #mean of |roots[0]| and |roots[-1]|.
-        sat_field = float(np.mean([abs(roots[0]), abs(roots[-1])]))
-
     return {
         'x':        x,
         'y':        y,
@@ -133,7 +127,6 @@ def compute_band(band):
         'roots':    roots,
         #Saturation Magnetization
         'MS':       MS,
-        'sat_field': sat_field,
     }
 
 def get_axis(band):
