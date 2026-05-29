@@ -1,7 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 import threading
-import os
 
 import matplotlib
 matplotlib.use("TkAgg")
@@ -56,7 +55,6 @@ class VSMModule(tk.Frame):
         strip.pack(pady=(20, 12), padx=40, fill="x")
         strip.columnconfigure(0, weight=1)
 
-        # File input
         tk.Label(strip, text="INPUT FILE  (.DAT)", font=("Segoe UI Semibold", 8),
                  bg=BG, fg=TEXT_DIM).grid(row=0, column=0, sticky="w", pady=(0, 4))
         file_row = tk.Frame(strip, bg=BG)
@@ -68,7 +66,6 @@ class VSMModule(tk.Frame):
                  highlightcolor=ACCENT).grid(row=0, column=0, sticky="ew", ipady=8, ipadx=8)
         self._pill_btn(file_row, "Browse", self._browse).grid(row=0, column=1, padx=(8, 0))
 
-        # Temperature bands + convert button
         tk.Label(strip, text="TEMPERATURE BANDS  (K, comma-separated)",
                  font=("Segoe UI Semibold", 8), bg=BG, fg=TEXT_DIM).grid(
                  row=2, column=0, sticky="w", pady=(0, 4))
@@ -87,7 +84,6 @@ class VSMModule(tk.Frame):
                                   padx=20, pady=8)
         self._btn_run.grid(row=0, column=1, padx=(10, 0))
 
-        # Inline result message shown after conversion
         self._result_var = tk.StringVar()
         self._result_lbl = tk.Label(strip, textvariable=self._result_var,
                                     font=("Segoe UI", 9), bg=BG, fg=TEXT_DIM,
@@ -113,7 +109,6 @@ class VSMModule(tk.Frame):
         widget.config(highlightthickness=0, bd=0, bg=BG)
         widget.pack(fill="both", expand=True)
 
-        # Redraw layout when frame is resized
         fig_frame.bind("<Configure>", self._on_resize)
 
     def _on_resize(self, event):
@@ -146,7 +141,6 @@ class VSMModule(tk.Frame):
         self._style_ax(self._ax_raw,  "Original Hysteresis Loops",  show_ylabel=True)
         self._style_ax(self._ax_corr, "Paramagnetic Contribution Removed", show_ylabel=False)
 
-        # Collect all y values for shared scale
         all_y_raw  = []
         all_y_corr = []
         for label in self._band_labels:
@@ -174,7 +168,7 @@ class VSMModule(tk.Frame):
                                    linestyle='--', alpha=0.5,
                                    label=f"{label} (no correction)")
 
-        # Apply shared y scale
+        # lock both plots to the same y range so they're visually comparable
         if all_y_raw and all_y_corr:
             y_min = min(min(all_y_raw), min(all_y_corr))
             y_max = max(max(all_y_raw), max(all_y_corr))
@@ -185,7 +179,6 @@ class VSMModule(tk.Frame):
         for ax in (self._ax_raw, self._ax_corr):
             ax.legend(fontsize=7.5, facecolor=SURFACE, edgecolor=BORDER, labelcolor=TEXT)
 
-        self._fig.tight_layout(pad=1.8)
         self._canvas.draw()
 
     # ── Widgets ───────────────────────────────────────────────────────────────
@@ -205,7 +198,6 @@ class VSMModule(tk.Frame):
             self._input_path.set(path)
 
     def _parse_band_temps(self):
-        # Parse comma-separated integer temperatures from entry
         raw = self._bands_var.get()
         try:
             temps = [int(t.strip()) for t in raw.split(",") if t.strip()]
