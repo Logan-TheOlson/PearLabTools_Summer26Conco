@@ -45,7 +45,7 @@ def process_dat(input_path, band_temps=None):
     df['Field (T)']      = df['Magnetic Field (Oe)'].astype(float) * 1e-4
     df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
-        df['Magnetization (A m^2/kg)'] = df['Moment (A m^2)'] / (mass * 1e-3)
+        df['Magnetization (A m^2/kg)'] = df['Moment (A m^2)'] / (mass * 1e-6)
 
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
 

@@ -36,7 +36,7 @@ ERROR_DIM  = "#a03030"
 # ── Module registry ───────────────────────────────────────────────────────────
 # To add a module: import its class above and add an entry here
 MODULES = [
-    ("VSM Converter", "DAT → CSVf", VSMModule),
+    ("VSM Converter", "DAT → CSV", VSMModule),
 ]
 
 def _apply_rounded_corners(hwnd):
@@ -73,9 +73,15 @@ class App(tk.Tk):
         self.minsize(1100, 720)
 
         # Apply rounded corners (Windows 11 only)
-        self.update()
-        hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
-        _apply_rounded_corners(hwnd)
+        if sys.platform == "win32":
+            try:
+                import platform
+                if int(platform.version().split('.')[2]) >= 22000:
+                    self.update()
+                    hwnd = ctypes.windll.user32.GetParent(self.winfo_id())
+                    _apply_rounded_corners(hwnd)
+            except Exception:
+                pass
 
         # Load icon for titlebar
         self._icon_img = None
@@ -126,7 +132,7 @@ class App(tk.Tk):
 
         btn_min = tk.Button(titlebar, text="─", font=("Segoe UI", 11),
                             bg=SURFACE, fg=TEXT_DIM, relief="flat",
-                            cursor="hand2", bd=0, command=self.iconify,
+                            cursor="hand2", bd=0, command=self._toggle_minimize,
                             padx=14, pady=14)
         btn_min.pack(side="right")
         _add_hover(btn_min, SURFACE, BORDER)
@@ -186,6 +192,10 @@ class App(tk.Tk):
             self._nav_buttons[name] = (row, name_lbl, sub_lbl)
 
     # ── Navigation ────────────────────────────────────────────────────────────
+
+    def _toggle_minimize(self):
+        self.withdraw()
+        self.after(200, lambda: self.iconify())
 
     def _select(self, name):
         # Update sidebar highlight

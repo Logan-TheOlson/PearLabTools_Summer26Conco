@@ -251,7 +251,7 @@ class VSMModule(tk.Frame):
         self._band_labels = [label for label, *_ in band_ranges]
         self._draw_preview()
 
-        mass_str_full = f"{mass} g" if mass else "not found"
+        mass_str_full = f"{mass} mg" if mass else "not found"
         self._result_var.set(
             f"✓  {rows} rows saved  ·  Mass: {mass_str_full}\n{csv_path}")
         self._result_lbl.config(fg=SUCCESS)
