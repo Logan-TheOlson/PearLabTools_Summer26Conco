@@ -5,7 +5,7 @@ import pandas as pd
 
 
 DEFAULT_BANDS = [50, 150, 300]
-BAND_HALF_WIDTH = 1  # ±K around each target temperature
+BAND_HALF_WIDTH = 1  # +-K around each target temperature
 
 
 def process_dat(input_path, band_temps=None):
@@ -16,31 +16,29 @@ def process_dat(input_path, band_temps=None):
     os.makedirs(output_dir, exist_ok=True)
     dat_name = os.path.basename(input_path)
 
-    # Parse for mass
     mass = None
-    with open(input_path, 'r') as f:
-        for line in f:
-            if 'SAMPLE_MASS' in line:
-                parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
-                try:
-                    mass = float(parts[1])
-                except (IndexError, ValueError):
-                    mass = None
-                break
-
-    # Find [Data] section
+    data_start = None
     with open(input_path, 'r') as f:
         lines = f.readlines()
-    data_start = next(i for i, l in enumerate(lines) if l.strip() == '[Data]')
 
-    # Auto-detect delimiter
+    for i, line in enumerate(lines):
+        if mass is None and 'SAMPLE_MASS' in line:
+            parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
+            try:
+                mass = float(parts[1])
+            except (IndexError, ValueError):
+                mass = None
+        if line.strip() == '[Data]':
+            data_start = i
+            break
+
     sample_line = lines[data_start + 1]
     delimiter = '\t' if '\t' in sample_line else ','
 
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
     df = df[['Temperature (K)', 'Magnetic Field (Oe)', 'Moment (emu)']]
     df = df.dropna(subset=['Moment (emu)'])
-    df = df.loc[df['Moment (emu)'] != '0'].copy()
+    df = df.loc[df['Moment (emu)'].astype(float) != 0].copy()
 
     df['Field (T)']      = df['Magnetic Field (Oe)'].astype(float) * 1e-4
     df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
@@ -55,31 +53,21 @@ def process_dat(input_path, band_temps=None):
         for t in band_temps
     ]
 
-    # Slice each band and compute correction
     plot_data = {}
-    bands = {}
-    for label, lo, hi in band_ranges:
-        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
-        bands[label] = band
-        plot_data[label] = compute_band(band)
-
-    # Compile one frame per band with raw + corrected magnetization columns
     frames = []
     first_field_added = False
 
     for label, lo, hi in band_ranges:
-        band  = bands[label].copy()
-        pdata = plot_data[label]
+        band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
+        pdata = compute_band(band)
+        plot_data[label] = pdata
 
-        # Add corrected magnetization alongside raw
         if pdata['corrected'] is not None:
             band['Magnetization Corrected (A m^2/kg)'] = pdata['corrected']
 
-        # Drop raw moment column and label remaining columns with band
         band = band.drop(columns=[c for c in band.columns if 'Moment' in c], errors='ignore')
         band.columns = [f"{c} [{label}]" for c in band.columns]
 
-        # Only include field column in the first band
         if first_field_added:
             band = band.drop(columns=[c for c in band.columns if 'Field' in c], errors='ignore')
         else:
@@ -87,7 +75,7 @@ def process_dat(input_path, band_temps=None):
 
         frames.append(band)
 
-    # Save single CSV
+    # field column is shared across all bands so only the first band keeps it
     stem     = os.path.splitext(dat_name)[0]
     csv_path = os.path.join(output_dir, stem + "_converted.csv")
     pd.concat(frames, axis=1).to_csv(csv_path, index=False)
@@ -96,7 +84,6 @@ def process_dat(input_path, band_temps=None):
 
 
 def compute_band(band):
-    # Return early if no data for this band
     if band.empty:
         return {'x': None, 'y': None, 'corrected': None, 'roots': None}
 
@@ -119,16 +106,10 @@ def get_axis(band):
 
 
 def get_roots(x, y):
-    # Fit chebyshev polynomial to 5th degree
+    # roots of the 3rd derivative mark where the loop enters/exits saturation
     w = np.polynomial.chebyshev.chebfit(x, y, 5)
-
-    # Take third derivative
     d = np.polynomial.chebyshev.chebder(w, 3)
-
-    # Find x values where third derivative = 0 (saturation boundaries)
     roots = np.polynomial.chebyshev.chebroots(d)
-
-    # Exclude complex roots
     real_roots = roots[np.isreal(roots)].real
 
     if len(real_roots) < 2:
