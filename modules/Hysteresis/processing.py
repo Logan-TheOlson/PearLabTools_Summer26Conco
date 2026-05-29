@@ -2,27 +2,23 @@ import os
 import numpy as np
 import pandas as pd
 
-# Some Defaults
 DEFAULT_BANDS = [50, 150, 300]
 BAND_HALF_WIDTH = 1  # +-K around each target temperature
 
-# Main Process data function, takes in file location and temperature bands
+
 def process_dat(input_path, band_temps=None):
-    # takes temp bands or defaults
     if band_temps is None:
         band_temps = DEFAULT_BANDS
 
-    # Creates output directory
     output_dir = os.path.join(os.path.dirname(os.path.abspath(input_path)), "output")
     os.makedirs(output_dir, exist_ok=True)
     dat_name = os.path.basename(input_path)
 
-    # Starts data reading
     mass = None
     data_start = None
     with open(input_path, 'r') as f:
         lines = f.readlines()
-    # Over opened lines checks for sample mass and data
+
     for i, line in enumerate(lines):
         if mass is None and 'SAMPLE_MASS' in line:
             parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
@@ -35,7 +31,6 @@ def process_dat(input_path, band_temps=None):
             break
 
     sample_line = lines[data_start + 1]
-    # Takes columned data and converts into dataframe
     delimiter = '\t' if '\t' in sample_line else ','
 
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
@@ -43,7 +38,6 @@ def process_dat(input_path, band_temps=None):
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'].astype(float) != 0].copy()
 
-    # Converts data to SI and truncates extra columns
     df['Field (T)']      = df['Magnetic Field (Oe)'].astype(float) * 1e-4
     df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
@@ -51,7 +45,6 @@ def process_dat(input_path, band_temps=None):
 
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
 
-    # Splits data into temp bands
     temp_col = 'Temperature (K)'
     band_ranges = [
         (f"{t}K", t - BAND_HALF_WIDTH, t + BAND_HALF_WIDTH)
@@ -62,14 +55,11 @@ def process_dat(input_path, band_temps=None):
     frames = []
     first_field_added = False
 
-    # Over each temp band pull data within 1 K
     for label, lo, hi in band_ranges:
         band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
         pdata = compute_band(band)
-        sat_Mag = pdata['MS']
         plot_data[label] = pdata
 
-        # Check that paramagnetism has been removed
         if pdata['corrected'] is not None:
             band['Magnetization Corrected (A m^2/kg)'] = pdata['corrected']
 
@@ -84,63 +74,50 @@ def process_dat(input_path, band_temps=None):
 
         frames.append(band)
 
-    # Takes data and merges into text document
     stem     = os.path.splitext(dat_name)[0]
     csv_path = os.path.join(output_dir, stem + "_converted.csv")
     pd.concat(frames, axis=1).to_csv(csv_path, index=False)
 
-    return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges, sat_Mag
+    return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges
 
 
 def compute_band(band):
     if band.empty:
-        return {'x': None, 'y': None, 'corrected': None, 'roots': None, 'MS': None, 'sat_field': None}
+        return {'x': None, 'y': None, 'corrected': None, 'roots': None,
+                'Ms': None, 'Mr': None, 'Hc': None}
 
     x, y = get_axis(band)
     roots = get_roots(x, y)
     corrected = None
-    MS = None
-    sat_field = None
+    Ms = Mr = Hc = None
 
     if roots is not None:
         slope = roots_to_slope(roots, x, y)
         corrected = y - slope * x
 
-        # Saturation wings: same regions the slope was measured from.
-        # MS is the mean corrected magnetization across both wings.
+        # Ms: mean |magnetization| across both high-field saturation wings
         left_mask  = x < roots[0]
         right_mask = x > roots[-1]
-
         left_vals  = corrected[left_mask]  if left_mask.sum()  > 0 else np.array([])
         right_vals = corrected[right_mask] if right_mask.sum() > 0 else np.array([])
-
-        wing_means = [m for m in [
-            np.mean(left_vals)  if len(left_vals)  > 0 else None,
-            np.mean(right_vals) if len(right_vals) > 0 else None,
-        ] if m is not None]
-
+        wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
         if wing_means:
-            # Average the absolute wing means so sign differences don't cancel
-            MS = float(np.mean(np.abs(wing_means)))
+            Ms = float(np.mean(np.abs(wing_means)))
 
-        # Saturation field: the field magnitude at which saturation begins,
-        #mean of |roots[0]| and |roots[-1]|.
-        sat_field = float(np.mean([abs(roots[0]), abs(roots[-1])]))
+        Mr = get_remanent_magnetization(x, corrected)
+        Hc = get_coercive_field(x, corrected)
 
-    return {
-        'x':        x,
-        'y':        y,
-        'corrected': corrected,
-        'roots':    roots,
-        #Saturation Magnetization
-        'MS':       MS
-    }
+    return {'x': x, 'y': y, 'corrected': corrected, 'roots': roots,
+            'Ms': Ms, 'Mr': Mr, 'Hc': Hc}
+
 
 def get_axis(band):
     return (
         band['Field (T)'].to_numpy(),
         band['Magnetization (A m^2/kg)'].to_numpy(),
     )
+
+
 def get_roots(x, y):
     # roots of the 3rd derivative mark where the loop enters/exits saturation
     w = np.polynomial.chebyshev.chebfit(x, y, 5)
@@ -148,21 +125,40 @@ def get_roots(x, y):
     roots = np.polynomial.chebyshev.chebroots(d)
     real_roots = roots[np.isreal(roots)].real
 
-    # only return roots if there are two and they are real
     if len(real_roots) < 2:
         return None
+
     real_roots.sort()
     return real_roots
+
+
 def roots_to_slope(roots, x, y):
-    # Split outsides into two parts
     left_mask  = x < roots[0]
     right_mask = x > roots[-1]
 
     if left_mask.sum() < 2 or right_mask.sum() < 2:
         return np.polyfit(x, y, 1)[0]
 
-    # Find slopes on both sides and return their average
     left_slope  = np.polyfit(x[left_mask],  y[left_mask],  1)[0]
     right_slope = np.polyfit(x[right_mask], y[right_mask], 1)[0]
 
     return (left_slope + right_slope) / 2
+
+
+def get_remanent_magnetization(x, y):
+    # Find the 2 points closest to H=0 and interpolate y at x=0.
+    # Uses the corrected (paramagnetic-removed) magnetization.
+    closest_indices = np.argpartition(np.abs(x), 2)[:2]
+    intercept = np.polyfit(x[closest_indices], y[closest_indices], 1)[1]
+    return abs(float(intercept))
+
+
+def get_coercive_field(x, y):
+    # Interpolate |field| at M=0 on each branch and average them.
+    # A proper loop crosses zero-magnetization twice (once per sweep direction).
+    hc_vals = []
+    for i in range(len(y) - 1):
+        if y[i] * y[i + 1] <= 0 and y[i] != y[i + 1]:
+            t = -y[i] / (y[i + 1] - y[i])
+            hc_vals.append(abs(x[i] + t * (x[i + 1] - x[i])))
+    return float(np.mean(hc_vals)) if hc_vals else None

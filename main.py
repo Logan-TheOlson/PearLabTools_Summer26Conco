@@ -66,7 +66,7 @@ class App(tk.Tk):
 
         # Center on screen
         self.update_idletasks()
-        w, h = 1300, 860
+        w, h = 1500, 1000
         x = (self.winfo_screenwidth()  - w) // 2
         y = (self.winfo_screenheight() - h) // 2
         self.geometry(f"{w}x{h}+{x}+{y}")
@@ -194,8 +194,26 @@ class App(tk.Tk):
     # ── Navigation ────────────────────────────────────────────────────────────
 
     def _toggle_minimize(self):
-        self.withdraw()
-        self.after(200, lambda: self.iconify())
+        self._restoring = False
+        self.withdraw()                          # hide first to avoid white flash
+        self.overrideredirect(False)             # required for iconify to work
+        self.after(50, self._do_iconify)
+
+    def _do_iconify(self):
+        try:
+            self.iconbitmap(resource_path("icon.ico"))
+        except Exception:
+            pass
+        self.iconify()
+        self._restoring = True                   # only accept <Map> after this point
+        self.bind("<Map>", self._on_restore)
+
+    def _on_restore(self, event):
+        if not self._restoring:
+            return
+        self.unbind("<Map>")
+        self._restoring = False
+        self.overrideredirect(True)
 
     def _select(self, name):
         # Update sidebar highlight

@@ -90,34 +90,71 @@ class VSMModule(tk.Frame):
         readout_row = tk.Frame(self, bg=BG)
         readout_row.pack(padx=40, pady=(0, 8), fill="x")
 
-        self._readout_mass  = tk.StringVar(value="—")
-        self._readout_ms    = tk.StringVar(value="—")
-        self._readout_mr    = tk.StringVar(value="—")
-        self._readout_hc    = tk.StringVar(value="—")
+        self._readout_mass = tk.StringVar(value="—")
 
-        metrics = [
-            ("SAMPLE MASS",                    "mg",           self._readout_mass),
-            ("SATURATION MAGNETIZATION",        "A m²/kg",      self._readout_ms),
-            ("REMANENT MAGNETIZATION",          "A m²/kg",      self._readout_mr),
-            ("COERCIVE FIELD",                  "T",            self._readout_hc),
+        # (title, unit, plot_data key, scale factor applied to value for display)
+        self._metric_cards = [
+            ("SAMPLE MASS",              "mg",           None,  1),
+            ("SATURATION MAGNETIZATION", "A m²/kg", "Ms",  1),
+            ("REMANENT MAGNETIZATION",   "A m²/kg", "Mr",  1),
+            ("COERCIVE FIELD",           "mT",           "Hc",  1000),
         ]
 
-        for i, (label, unit, var) in enumerate(metrics):
+        self._param_frames = {}
+
+        for i, (title, unit, key, _) in enumerate(self._metric_cards):
+            last = i == len(self._metric_cards) - 1
             card = tk.Frame(readout_row, bg=SURFACE,
                             highlightthickness=1, highlightbackground=BORDER)
-            card.grid(row=0, column=i, sticky="ew", padx=(0, 8) if i < len(metrics) - 1 else 0)
+            card.grid(row=0, column=i, sticky="nsew", padx=(0, 0 if last else 8))
             readout_row.columnconfigure(i, weight=1)
 
-            tk.Label(card, text=label, font=("Segoe UI Semibold", 7),
-                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(8, 0))
-            tk.Label(card, textvariable=var, font=("Consolas", 13),
-                     bg=SURFACE, fg=TEXT).pack(anchor="w", padx=10, pady=(2, 0))
+            tk.Label(card, text=title, font=("Segoe UI Semibold", 7),
+                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(8, 4))
+
+            if key is None:
+                tk.Label(card, textvariable=self._readout_mass,
+                         font=("Consolas", 13), bg=SURFACE, fg=TEXT).pack(anchor="w", padx=10)
+            else:
+                content = tk.Frame(card, bg=SURFACE)
+                content.pack(fill="x", padx=10)
+                self._param_frames[key] = content
+                tk.Label(content, text="—", font=("Consolas", 11),
+                         bg=SURFACE, fg=TEXT_DIM).pack(anchor="w")
+
             tk.Label(card, text=unit, font=("Segoe UI", 7),
-                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(0, 8))
+                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(2, 8))
+
+    def _update_readouts(self, band_labels, plot_data, mass):
+        self._readout_mass.set(f"{mass}" if mass else "not found")
+
+        for _, _, key, scale in self._metric_cards:
+            if key is None:
+                continue
+            frame = self._param_frames[key]
+            for w in frame.winfo_children():
+                w.destroy()
+
+            for label in band_labels:
+                pdata = plot_data.get(label, {})
+                val   = pdata.get(key) if pdata else None
+
+                row = tk.Frame(frame, bg=SURFACE)
+                row.pack(fill="x", pady=1)
+                tk.Label(row, text=label, font=("Segoe UI", 8),
+                         bg=SURFACE, fg=TEXT_DIM, width=6, anchor="w").pack(side="left")
+                if val is not None:
+                    display_text  = f"{val * scale:.2f}"
+                    display_color = TEXT
+                else:
+                    display_text  = "—"
+                    display_color = TEXT_DIM
+                tk.Label(row, text=display_text, font=("Consolas", 11),
+                         bg=SURFACE, fg=display_color, anchor="e").pack(side="right")
 
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=BG)
-        fig_frame.pack(fill="both", expand=True, padx=16, pady=(4, 0))
+        fig_frame.pack(fill="both", expand=True, padx=28, pady=(10, 0))
 
         self._fig     = Figure(figsize=(10, 3.6), dpi=96, facecolor=BG, edgecolor=BG)
         self._ax_raw  = self._fig.add_subplot(1, 2, 1)
@@ -261,27 +298,21 @@ class VSMModule(tk.Frame):
 
         def worker():
             try:
-                rows, mass, csv_path, output_dir, plot_data, band_ranges, sat_Mag = \
-                    process_dat(inp, band_temps)
-                self.after(0, lambda: self._done(
-                    rows, mass, sat_Mag, csv_path, output_dir, plot_data, band_ranges))
+                result = process_dat(inp, band_temps)
+                self.after(0, lambda: self._done(*result))
             except Exception as e:
                 self.after(0, lambda: self._error(str(e)))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _done(self, rows, mass, sat_Mag, csv_path, output_dir, plot_data, band_ranges):
+    def _done(self, rows, mass, csv_path, output_dir, plot_data, band_ranges, *_):
         self._btn_run.config(state="normal", text="Convert & Save")
         self._status_cb(f"✓  Done  ·  {output_dir}", SUCCESS)
 
         self._plot_data   = plot_data
         self._band_labels = [label for label, *_ in band_ranges]
         self._draw_preview()
-
-        self._readout_mass.set(f"{mass}" if mass else "not found")
-        self._readout_ms.set(f"{sat_Mag}" if sat_Mag else "not found")
-        self._readout_mr.set("—")
-        self._readout_hc.set("—")
+        self._update_readouts(self._band_labels, plot_data, mass)
 
         self._result_var.set(f"✓  {rows} rows saved  ·  {csv_path}")
         self._result_lbl.config(fg=SUCCESS)

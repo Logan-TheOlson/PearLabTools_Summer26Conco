@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;Orange Lab Tools.spec&#10;#&#9;main.py">
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="added some comments">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/Hysteresis/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/Hysteresis/gui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/Hysteresis/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/Hysteresis/processing.py" afterDir="false" />
     </list>
@@ -281,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780080291366</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="added some comments">
+      <option name="closed" value="true" />
+      <created>1780084440392</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1780084440392</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -309,9 +318,10 @@
     <MESSAGE value="Implement slope determination and paramagnetic contribution" />
     <MESSAGE value="Rebased onto Experimental Build" />
     <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;Orange Lab Tools.spec&#10;#&#9;main.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;Orange Lab Tools.spec&#10;#&#9;main.py" />
+    <MESSAGE value="added some comments" />
+    <option name="LAST_COMMIT_MESSAGE" value="added some comments" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780084218044" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780086003299" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
