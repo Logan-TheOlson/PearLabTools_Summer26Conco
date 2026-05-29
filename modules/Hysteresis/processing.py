@@ -141,8 +141,6 @@ def get_axis(band):
         band['Field (T)'].to_numpy(),
         band['Magnetization (A m^2/kg)'].to_numpy(),
     )
-
-
 def get_roots(x, y):
     # roots of the 3rd derivative mark where the loop enters/exits saturation
     w = np.polynomial.chebyshev.chebfit(x, y, 5)
@@ -155,7 +153,6 @@ def get_roots(x, y):
         return None
     real_roots.sort()
     return real_roots
-
 def roots_to_slope(roots, x, y):
     # Split outsides into two parts
     left_mask  = x < roots[0]
