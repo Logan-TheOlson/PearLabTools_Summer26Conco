@@ -47,7 +47,9 @@ class VSMModule(tk.Frame):
     # ── Layout ────────────────────────────────────────────────────────────────
 
     def _build(self):
+        self._build_result_strip()
         self._build_controls()
+        self._build_readouts()
         self._build_preview()
 
     def _build_controls(self):
@@ -84,15 +86,38 @@ class VSMModule(tk.Frame):
                                   padx=20, pady=8)
         self._btn_run.grid(row=0, column=1, padx=(10, 0))
 
-        self._result_var = tk.StringVar()
-        self._result_lbl = tk.Label(strip, textvariable=self._result_var,
-                                    font=("Segoe UI", 9), bg=BG, fg=TEXT_DIM,
-                                    anchor="w", justify="left")
-        self._result_lbl.grid(row=4, column=0, sticky="w", pady=(8, 0))
+    def _build_readouts(self):
+        readout_row = tk.Frame(self, bg=BG)
+        readout_row.pack(padx=40, pady=(0, 8), fill="x")
+
+        self._readout_mass  = tk.StringVar(value="—")
+        self._readout_ms    = tk.StringVar(value="—")
+        self._readout_mr    = tk.StringVar(value="—")
+        self._readout_hc    = tk.StringVar(value="—")
+
+        metrics = [
+            ("SAMPLE MASS",                    "mg",           self._readout_mass),
+            ("SATURATION MAGNETIZATION",        "A m²/kg",      self._readout_ms),
+            ("REMANENT MAGNETIZATION",          "A m²/kg",      self._readout_mr),
+            ("COERCIVE FIELD",                  "T",            self._readout_hc),
+        ]
+
+        for i, (label, unit, var) in enumerate(metrics):
+            card = tk.Frame(readout_row, bg=SURFACE,
+                            highlightthickness=1, highlightbackground=BORDER)
+            card.grid(row=0, column=i, sticky="ew", padx=(0, 8) if i < len(metrics) - 1 else 0)
+            readout_row.columnconfigure(i, weight=1)
+
+            tk.Label(card, text=label, font=("Segoe UI Semibold", 7),
+                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(8, 0))
+            tk.Label(card, textvariable=var, font=("Consolas", 13),
+                     bg=SURFACE, fg=TEXT).pack(anchor="w", padx=10, pady=(2, 0))
+            tk.Label(card, text=unit, font=("Segoe UI", 7),
+                     bg=SURFACE, fg=TEXT_DIM).pack(anchor="w", padx=10, pady=(0, 8))
 
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=BG)
-        fig_frame.pack(fill="both", expand=True, padx=16, pady=(4, 16))
+        fig_frame.pack(fill="both", expand=True, padx=16, pady=(4, 0))
 
         self._fig     = Figure(figsize=(10, 3.6), dpi=96, facecolor=BG, edgecolor=BG)
         self._ax_raw  = self._fig.add_subplot(1, 2, 1)
@@ -110,6 +135,16 @@ class VSMModule(tk.Frame):
         widget.pack(fill="both", expand=True)
 
         fig_frame.bind("<Configure>", self._on_resize)
+
+    def _build_result_strip(self):
+        tk.Frame(self, bg=BORDER, height=1).pack(fill="x", side="bottom")
+        bar = tk.Frame(self, bg=SURFACE)
+        bar.pack(fill="x", side="bottom")
+        self._result_var = tk.StringVar(value="No file loaded.")
+        self._result_lbl = tk.Label(bar, textvariable=self._result_var,
+                                    font=("Segoe UI", 9), bg=SURFACE, fg=TEXT_DIM,
+                                    anchor="w", justify="left")
+        self._result_lbl.pack(side="left", padx=18, pady=7)
 
     def _on_resize(self, event):
         w = max(event.width,  200) / 96
@@ -243,9 +278,12 @@ class VSMModule(tk.Frame):
         self._band_labels = [label for label, *_ in band_ranges]
         self._draw_preview()
 
-        mass_str_full = f"{mass} mg" if mass else "not found"
-        self._result_var.set(
-            f"✓  {rows} rows saved  ·  Mass: {mass_str_full}\n{csv_path}")
+        self._readout_mass.set(f"{mass}" if mass else "not found")
+        self._readout_ms.set("—")
+        self._readout_mr.set("—")
+        self._readout_hc.set("—")
+
+        self._result_var.set(f"✓  {rows} rows saved  ·  {csv_path}")
         self._result_lbl.config(fg=SUCCESS)
 
     def _error(self, msg):
