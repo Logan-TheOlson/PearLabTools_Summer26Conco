@@ -99,7 +99,7 @@ class VSMModule(tk.Frame):
             ("SAMPLE MASS",                    "mg",           self._readout_mass),
             ("SATURATION MAGNETIZATION",        "A m²/kg",      self._readout_ms),
             ("REMANENT MAGNETIZATION",          "A m²/kg",      self._readout_mr),
-            ("COERCIVE FIELD",                  "T",            self._readout_hc),
+            ("COERCIVE FIELD",                  "mT",            self._readout_hc),
         ]
 
         for i, (label, unit, var) in enumerate(metrics):
