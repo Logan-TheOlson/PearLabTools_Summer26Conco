@@ -85,18 +85,48 @@ def process_dat(input_path, band_temps=None):
 
 def compute_band(band):
     if band.empty:
-        return {'x': None, 'y': None, 'corrected': None, 'roots': None}
+        return {'x': None, 'y': None, 'corrected': None, 'roots': None, 'MS': None, 'sat_field': None}
 
     x, y = get_axis(band)
     roots = get_roots(x, y)
     corrected = None
+    MS = None
+    sat_field = None
 
     if roots is not None:
         slope = roots_to_slope(roots, x, y)
         corrected = y - slope * x
 
-    return {'x': x, 'y': y, 'corrected': corrected, 'roots': roots}
+        # Saturation wings: same regions the slope was measured from.
+        # MS is the mean corrected magnetization across both wings.
+        left_mask  = x < roots[0]
+        right_mask = x > roots[-1]
 
+        left_vals  = corrected[left_mask]  if left_mask.sum()  > 0 else np.array([])
+        right_vals = corrected[right_mask] if right_mask.sum() > 0 else np.array([])
+
+        wing_means = [m for m in [
+            np.mean(left_vals)  if len(left_vals)  > 0 else None,
+            np.mean(right_vals) if len(right_vals) > 0 else None,
+        ] if m is not None]
+
+        if wing_means:
+            # Average the absolute wing means so sign differences don't cancel
+            MS = float(np.mean(np.abs(wing_means)))
+
+        # Saturation field: the field magnitude at which saturation begins,
+        #mean of |roots[0]| and |roots[-1]|.
+        sat_field = float(np.mean([abs(roots[0]), abs(roots[-1])]))
+
+    return {
+        'x':        x,
+        'y':        y,
+        'corrected': corrected,
+        'roots':    roots,
+        #Saturation Magnetization
+        'MS':       MS,
+        'sat_field': sat_field,
+    }
 
 def get_axis(band):
     return (
@@ -121,7 +151,7 @@ def get_roots(x, y):
 
 def roots_to_slope(roots, x, y):
     left_mask  = x < roots[0]
-    right_mask = x > roots[1]
+    right_mask = x > roots[-1]
 
     if left_mask.sum() < 2 or right_mask.sum() < 2:
         return np.polyfit(x, y, 1)[0]
