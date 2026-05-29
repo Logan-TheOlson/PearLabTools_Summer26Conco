@@ -1,26 +1,28 @@
 import os
-
 import numpy as np
 import pandas as pd
 
-
+# Some Defaults
 DEFAULT_BANDS = [50, 150, 300]
 BAND_HALF_WIDTH = 1  # +-K around each target temperature
 
-
+# Main Process data function, takes in file location and temperature bands
 def process_dat(input_path, band_temps=None):
+    # takes temp bands or defaults
     if band_temps is None:
         band_temps = DEFAULT_BANDS
 
+    # Creates output directory
     output_dir = os.path.join(os.path.dirname(os.path.abspath(input_path)), "output")
     os.makedirs(output_dir, exist_ok=True)
     dat_name = os.path.basename(input_path)
 
+    # Starts data reading
     mass = None
     data_start = None
     with open(input_path, 'r') as f:
         lines = f.readlines()
-
+    # Over opened lines checks for sample mass and data
     for i, line in enumerate(lines):
         if mass is None and 'SAMPLE_MASS' in line:
             parts = line.strip().split('\t') if '\t' in line else line.strip().split(',')
@@ -33,6 +35,7 @@ def process_dat(input_path, band_temps=None):
             break
 
     sample_line = lines[data_start + 1]
+    # Takes columned data and converts into dataframe
     delimiter = '\t' if '\t' in sample_line else ','
 
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
@@ -40,6 +43,7 @@ def process_dat(input_path, band_temps=None):
     df = df.dropna(subset=['Moment (emu)'])
     df = df.loc[df['Moment (emu)'].astype(float) != 0].copy()
 
+    # Converts data to SI and truncates extra columns
     df['Field (T)']      = df['Magnetic Field (Oe)'].astype(float) * 1e-4
     df['Moment (A m^2)'] = df['Moment (emu)'].astype(float) * 1e-3
     if mass:
@@ -47,6 +51,7 @@ def process_dat(input_path, band_temps=None):
 
     df = df.drop(columns=['Magnetic Field (Oe)', 'Moment (emu)'])
 
+    # Splits data into temp bands
     temp_col = 'Temperature (K)'
     band_ranges = [
         (f"{t}K", t - BAND_HALF_WIDTH, t + BAND_HALF_WIDTH)
@@ -57,17 +62,20 @@ def process_dat(input_path, band_temps=None):
     frames = []
     first_field_added = False
 
+    # Over each temp band pull data within 1 K
     for label, lo, hi in band_ranges:
         band = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
         pdata = compute_band(band)
         plot_data[label] = pdata
 
+        # Check that paramagnetism has been removed
         if pdata['corrected'] is not None:
             band['Magnetization Corrected (A m^2/kg)'] = pdata['corrected']
 
         band = band.drop(columns=[c for c in band.columns if 'Moment' in c], errors='ignore')
         band.columns = [f"{c} [{label}]" for c in band.columns]
 
+        # field column is shared across all bands so only the first band keeps it
         if first_field_added:
             band = band.drop(columns=[c for c in band.columns if 'Field' in c], errors='ignore')
         else:
@@ -75,7 +83,7 @@ def process_dat(input_path, band_temps=None):
 
         frames.append(band)
 
-    # field column is shared across all bands so only the first band keeps it
+    # Takes data and merges into text document
     stem     = os.path.splitext(dat_name)[0]
     csv_path = os.path.join(output_dir, stem + "_converted.csv")
     pd.concat(frames, axis=1).to_csv(csv_path, index=False)
@@ -142,19 +150,21 @@ def get_roots(x, y):
     roots = np.polynomial.chebyshev.chebroots(d)
     real_roots = roots[np.isreal(roots)].real
 
+    # only return roots if there are two and they are real
     if len(real_roots) < 2:
         return None
-
     real_roots.sort()
     return real_roots
 
 def roots_to_slope(roots, x, y):
+    # Split outsides into two parts
     left_mask  = x < roots[0]
     right_mask = x > roots[-1]
 
     if left_mask.sum() < 2 or right_mask.sum() < 2:
         return np.polyfit(x, y, 1)[0]
 
+    # Find slopes on both sides and return their average
     left_slope  = np.polyfit(x[left_mask],  y[left_mask],  1)[0]
     right_slope = np.polyfit(x[right_mask], y[right_mask], 1)[0]
 
