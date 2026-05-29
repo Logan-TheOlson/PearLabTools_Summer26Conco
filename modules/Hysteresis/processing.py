@@ -148,7 +148,6 @@ def get_roots(x, y):
     real_roots.sort()
     return real_roots
 
-
 def roots_to_slope(roots, x, y):
     left_mask  = x < roots[0]
     right_mask = x > roots[-1]
