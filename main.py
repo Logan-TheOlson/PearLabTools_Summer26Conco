@@ -5,7 +5,7 @@ import sys
 import os
 
 from PIL import Image, ImageTk
-from modules.vsm.gui import VSMModule
+from modules.Hysteresis.gui import VSMModule
 
 def resource_path(relative):
     if hasattr(sys, '_MEIPASS'):
@@ -36,7 +36,7 @@ ERROR_DIM  = "#a03030"
 # ── Module registry ───────────────────────────────────────────────────────────
 # To add a module: import its class above and add an entry here
 MODULES = [
-    ("VSM Converter", "DAT → CSV", VSMModule),
+    ("Hysteresis", "DAT → CSV", VSMModule),
 ]
 
 def _apply_rounded_corners(hwnd):
