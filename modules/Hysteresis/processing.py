@@ -147,7 +147,7 @@ def roots_to_slope(roots, x, y):
 
 def get_remanent_magnetization(x, y):
     # Find the 2 points closest to H=0 and interpolate y at x=0.
-    # Uses the corrected (paramagnetic-removed) magnetization.
+    # Uses the corrected magnetization.
     closest_indices = np.argpartition(np.abs(x), 2)[:2]
     intercept = np.polyfit(x[closest_indices], y[closest_indices], 1)[1]
     return abs(float(intercept))
