@@ -5,7 +5,6 @@ import pandas as pd
 DEFAULT_BANDS = [50, 150, 300]
 BAND_HALF_WIDTH = 1  # +-K around each target temperature
 
-
 def process_dat(input_path, band_temps=None):
     if band_temps is None:
         band_temps = DEFAULT_BANDS

@@ -6,6 +6,8 @@ import os
 
 from PIL import Image, ImageTk
 from modules.Hysteresis.gui import VSMModule
+from modules.LT_1T.gui import LT1TModule
+from modules.ZFC.gui import ZFCModule
 
 def resource_path(relative):
     if hasattr(sys, '_MEIPASS'):
@@ -37,6 +39,8 @@ ERROR_DIM  = "#a03030"
 # To add a module: import its class above and add an entry here
 MODULES = [
     ("Hysteresis", "DAT → CSV", VSMModule),
+    ("LT 1T",      "DAT → CSV", LT1TModule),
+    ("ZFC / FC",   "DAT → CSV", ZFCModule),
 ]
 
 def _apply_rounded_corners(hwnd):
@@ -98,6 +102,7 @@ class App(tk.Tk):
         self._nav_buttons   = {}
         self._build()
         self._select(MODULES[0][0])
+        self._register_taskbar()
 
     # ── Layout ────────────────────────────────────────────────────────────────
 
@@ -192,6 +197,25 @@ class App(tk.Tk):
             self._nav_buttons[name] = (row, name_lbl, sub_lbl)
 
     # ── Navigation ────────────────────────────────────────────────────────────
+
+    def _register_taskbar(self):
+        # Override-redirect windows are invisible to the taskbar and Alt+Tab by default.
+        # Adding WS_EX_APPWINDOW and removing WS_EX_TOOLWINDOW forces Windows to treat
+        # this as a normal app window. Requires a withdraw/deiconify to take effect.
+        if sys.platform != "win32":
+            return
+        try:
+            GWL_EXSTYLE    = -20
+            WS_EX_APPWINDOW  = 0x00040000
+            WS_EX_TOOLWINDOW = 0x00000080
+            hwnd  = ctypes.windll.user32.GetParent(self.winfo_id())
+            style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            style = (style & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+            self.withdraw()
+            self.after(10, self.deiconify)
+        except Exception:
+            pass
 
     def _toggle_minimize(self):
         self._restoring = False

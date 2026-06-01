@@ -1366,14 +1366,32 @@
    'Asus\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\mimetypes.py',
    'PYMODULE'),
   ('modules', '-', 'PYMODULE'),
-  ('modules.vsm', '-', 'PYMODULE'),
-  ('modules.vsm.gui',
+  ('modules.Hysteresis', '-', 'PYMODULE'),
+  ('modules.Hysteresis.gui',
    "C:\\Users\\Logan's "
-   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\vsm\\gui.py',
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\Hysteresis\\gui.py',
    'PYMODULE'),
-  ('modules.vsm.processing',
+  ('modules.Hysteresis.processing',
    "C:\\Users\\Logan's "
-   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\vsm\\processing.py',
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\Hysteresis\\processing.py',
+   'PYMODULE'),
+  ('modules.LT_1T', '-', 'PYMODULE'),
+  ('modules.LT_1T.gui',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\LT_1T\\gui.py',
+   'PYMODULE'),
+  ('modules.LT_1T.processing',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\LT_1T\\processing.py',
+   'PYMODULE'),
+  ('modules.ZFC', '-', 'PYMODULE'),
+  ('modules.ZFC.gui',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\ZFC\\gui.py',
+   'PYMODULE'),
+  ('modules.ZFC.processing',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\ZFC\\processing.py',
    'PYMODULE'),
   ('mpl_toolkits', '-', 'PYMODULE'),
   ('mpl_toolkits.mplot3d',
