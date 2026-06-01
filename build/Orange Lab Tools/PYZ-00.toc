@@ -1384,6 +1384,15 @@
    "C:\\Users\\Logan's "
    'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\LT_1T\\processing.py',
    'PYMODULE'),
+  ('modules.RTSIRM', '-', 'PYMODULE'),
+  ('modules.RTSIRM.gui',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\RTSIRM\\gui.py',
+   'PYMODULE'),
+  ('modules.RTSIRM.processing',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\RTSIRM\\processing.py',
+   'PYMODULE'),
   ('modules.ZFC', '-', 'PYMODULE'),
   ('modules.ZFC.gui',
    "C:\\Users\\Logan's "
@@ -1392,6 +1401,18 @@
   ('modules.ZFC.processing',
    "C:\\Users\\Logan's "
    'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\ZFC\\processing.py',
+   'PYMODULE'),
+  ('modules.base_gui',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\base_gui.py',
+   'PYMODULE'),
+  ('modules.dat_reader',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\dat_reader.py',
+   'PYMODULE'),
+  ('modules.drag_file',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\modules\\drag_file.py',
    'PYMODULE'),
   ('mpl_toolkits', '-', 'PYMODULE'),
   ('mpl_toolkits.mplot3d',
@@ -3473,6 +3494,14 @@
   ('tkinter.simpledialog',
    "C:\\Users\\Logan's "
    'Asus\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\simpledialog.py',
+   'PYMODULE'),
+  ('tkinterdnd2',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\.venv\\Lib\\site-packages\\tkinterdnd2\\__init__.py',
+   'PYMODULE'),
+  ('tkinterdnd2.TkinterDnD',
+   "C:\\Users\\Logan's "
+   'Asus\\PycharmProjects\\Summer2026_ConcoPhys\\.venv\\Lib\\site-packages\\tkinterdnd2\\TkinterDnD.py',
    'PYMODULE'),
   ('token',
    "C:\\Users\\Logan's "

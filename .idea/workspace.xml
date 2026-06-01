@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
-      <change afterPath="$PROJECT_DIR$/modules/LT_1T/gui.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/LT_1T/processing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/ZFC/gui.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/ZFC/processing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/Analysis-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/Analysis-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/EXE-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/EXE-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/Orange Lab Tools.pkg" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/Orange Lab Tools.pkg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/PKG-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/PKG-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/PYZ-00.pyz" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/PYZ-00.pyz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/PYZ-00.toc" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/PYZ-00.toc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/base_library.zip" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/base_library.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/warn-Orange Lab Tools.txt" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/warn-Orange Lab Tools.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/xref-Orange Lab Tools.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/xref-Orange Lab Tools.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/Orange Lab Tools.exe" beforeDir="false" afterPath="$PROJECT_DIR$/dist/Orange Lab Tools.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/Hysteresis/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/Hysteresis/processing.py" afterDir="false" />
-    </list>
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -151,7 +133,8 @@
       <workItem from="1779989844318" duration="8831000" />
       <workItem from="1780078650560" duration="813000" />
       <workItem from="1780080007787" duration="1376000" />
-      <workItem from="1780326545796" duration="5163000" />
+      <workItem from="1780326545796" duration="8039000" />
+      <workItem from="1780344264019" duration="1067000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -329,7 +312,23 @@
       <option name="project" value="LOCAL" />
       <updated>1780086598603</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Implemented both ZFC/FC and LW_1T Analysis and conversion modules">
+      <option name="closed" value="true" />
+      <created>1780341398946</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1780341398947</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop.">
+      <option name="closed" value="true" />
+      <created>1780345251985</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1780345251985</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -361,9 +360,11 @@
     <MESSAGE value="Implemented Remnant Saturation and Cohesive Field, changed GUI to allow for these values at each temperature" />
     <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;modules/Hysteresis/gui.py&#10;#&#9;modules/Hysteresis/processing.py" />
     <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
+    <MESSAGE value="Implemented both ZFC/FC and LW_1T Analysis and conversion modules" />
+    <MESSAGE value="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780340992609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780345007761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

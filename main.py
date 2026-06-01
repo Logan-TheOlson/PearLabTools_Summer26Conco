@@ -5,9 +5,11 @@ import sys
 import os
 
 from PIL import Image, ImageTk
+from tkinterdnd2 import TkinterDnD
 from modules.Hysteresis.gui import VSMModule
 from modules.LT_1T.gui import LT1TModule
 from modules.ZFC.gui import ZFCModule
+from modules.RTSIRM.gui import RTSIRMModule
 
 def resource_path(relative):
     if hasattr(sys, '_MEIPASS'):
@@ -35,12 +37,11 @@ TEXT_DIM   = "#8a8478"
 ERROR      = "#f07070"
 ERROR_DIM  = "#a03030"
 
-# ── Module registry ───────────────────────────────────────────────────────────
-# To add a module: import its class above and add an entry here
 MODULES = [
     ("Hysteresis", "DAT → CSV", VSMModule),
-    ("LT 1T",      "DAT → CSV", LT1TModule),
-    ("ZFC / FC",   "DAT → CSV", ZFCModule),
+    ("Low Temp. 1 Telsa", "DAT → CSV", LT1TModule),
+    ("Zero Field Cooling",   "DAT → CSV", ZFCModule),
+    ("Room Temp. SIRM",     "DAT → CSV", RTSIRMModule),
 ]
 
 def _apply_rounded_corners(hwnd):
@@ -62,7 +63,7 @@ def _add_hover(btn, normal_bg, hover_bg, normal_fg=TEXT_DIM, hover_fg=TEXT):
     btn.bind("<Leave>", lambda e: btn.config(bg=normal_bg, fg=normal_fg))
 
 
-class App(tk.Tk):
+class App(TkinterDnD.Tk):
     def __init__(self):
         super().__init__()
         self.overrideredirect(True)
@@ -100,6 +101,7 @@ class App(tk.Tk):
         self._drag_y        = 0
         self._active_module = None
         self._nav_buttons   = {}
+        self._panels        = {}
         self._build()
         self._select(MODULES[0][0])
         self._register_taskbar()
@@ -248,13 +250,17 @@ class App(tk.Tk):
             nlbl.config(bg=bg)
             slbl.config(bg=bg)
 
-        # Swap content panel
-        for widget in self._content.winfo_children():
-            widget.destroy()
+        # Create the panel the first time it's selected, then just show/hide
+        if name not in self._panels:
+            cls = next((c for n, _, c in MODULES if n == name), None)
+            self._panels[name] = cls(self._content, status_cb=self._set_status)
 
-        cls = next((c for n, _, c in MODULES if n == name), None)
-        panel = cls(self._content, status_cb=self._set_status)
-        panel.pack(fill="both", expand=True)
+        for n, panel in self._panels.items():
+            if n == name:
+                panel.pack(fill="both", expand=True)
+            else:
+                panel.pack_forget()
+
         self._active_module = name
 
     # ── Window controls ───────────────────────────────────────────────────────
