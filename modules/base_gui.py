@@ -1,4 +1,4 @@
-# Base class for all Orange Lab Tools module panels
+"""Base class for all Orange Lab Tools module panels."""
 import tkinter as tk
 from tkinter import filedialog
 import threading
@@ -12,7 +12,13 @@ from modules.drag_file import FileDragWidget
 
 
 class BaseModule(tk.Frame):
-    # ── Shared palette ────────────────────────────────────────────────────────
+    # Set by main.py before any panels are created (2880x1800 = 1.0)
+    SCALE = 1.0
+    # On lower-resolution screens, keep fonts the same absolute size as reference.
+    # Set by main.py alongside SCALE.
+    FONT_SCALE = 1.0
+
+    # ── Palette ───────────────────────────────────────────────────────────────
     BG         = "#13151a"
     SURFACE    = "#1e2028"
     BORDER     = "#383530"
@@ -23,8 +29,6 @@ class BaseModule(tk.Frame):
     GRID_COLOR = "#272520"
     SUCCESS    = "#5dd6a0"
     ERROR      = "#f07070"
-    FONT_MONO  = ("Consolas", 10)
-    FONT_UI    = ("Segoe UI", 10)
 
     def __init__(self, parent, status_cb=None, **kwargs):
         super().__init__(parent, bg=self.BG, **kwargs)
@@ -32,58 +36,83 @@ class BaseModule(tk.Frame):
         self._input_path = tk.StringVar()
         self._subplot_kw = {}
 
+    # ── Scale helpers ──────────────────────────────────────────────────────────
+
+    def _s(self, n):
+        """Scale a pixel / point value."""
+        return max(1, round(n * self.SCALE))
+
+    def _f(self, family, size, *extra):
+        """Return a scaled tkinter font tuple."""
+        return (family, max(6, round(size * self.SCALE * self.FONT_SCALE))) + extra
+
+    def _mpl(self, size):
+        """Scale a matplotlib font size (points)."""
+        return max(5, round(size * self.SCALE * self.FONT_SCALE))
+
     # ── Shared widget builders ─────────────────────────────────────────────────
 
     def _build_result_strip(self):
-        # Status bar pinned to bottom with drag-to-export chip on the right
         tk.Frame(self, bg=self.BORDER, height=1).pack(fill="x", side="bottom")
         bar = tk.Frame(self, bg=self.SURFACE)
         bar.pack(fill="x", side="bottom")
         self._result_var = tk.StringVar(value="No file loaded.")
         self._result_lbl = tk.Label(bar, textvariable=self._result_var,
-                                    font=("Segoe UI", 9), bg=self.SURFACE, fg=self.TEXT_DIM,
+                                    font=self._f("Segoe UI", 9),
+                                    bg=self.SURFACE, fg=self.TEXT_DIM,
                                     anchor="w", justify="left")
-        self._result_lbl.pack(side="left", padx=18, pady=7)
+        self._result_lbl.pack(side="left", padx=self._s(18), pady=self._s(7))
         self._drag_chip = FileDragWidget(bar, path="")
-        self._drag_chip.pack(side="right", padx=12, pady=4)
+        self._drag_chip.pack(side="right", padx=self._s(12), pady=self._s(4))
         self._drag_chip.pack_forget()
 
     def _build_file_row(self, parent, grid_row=0):
-        # INPUT FILE label + path entry + Browse button, placed into a grid parent
-        tk.Label(parent, text="INPUT FILE  (.DAT)", font=("Segoe UI Semibold", 8),
+        tk.Label(parent, text="INPUT FILE  (.DAT)",
+                 font=self._f("Segoe UI Semibold", 8),
                  bg=self.BG, fg=self.TEXT_DIM).grid(
-                 row=grid_row, column=0, columnspan=2, sticky="w", pady=(0, 4))
+                 row=grid_row, column=0, columnspan=2, sticky="w", pady=(0, self._s(4)))
         file_row = tk.Frame(parent, bg=self.BG)
-        file_row.grid(row=grid_row + 1, column=0, columnspan=2, sticky="ew", pady=(0, 12))
+        file_row.grid(row=grid_row + 1, column=0, columnspan=2,
+                      sticky="ew", pady=(0, self._s(12)))
         file_row.columnconfigure(0, weight=1)
-        tk.Entry(file_row, textvariable=self._input_path, font=self.FONT_MONO,
-                 bg=self.SURFACE, fg=self.TEXT, insertbackground=self.TEXT, relief="flat",
-                 highlightthickness=1, highlightbackground=self.BORDER,
-                 highlightcolor=self.ACCENT).grid(row=0, column=0, sticky="ew", ipady=8, ipadx=8)
-        self._pill_btn(file_row, "Browse", self._browse).grid(row=0, column=1, padx=(8, 0))
+        tk.Entry(file_row, textvariable=self._input_path,
+                 font=self._f("Consolas", 10),
+                 bg=self.SURFACE, fg=self.TEXT, insertbackground=self.TEXT,
+                 relief="flat", highlightthickness=1,
+                 highlightbackground=self.BORDER,
+                 highlightcolor=self.ACCENT).grid(
+                 row=0, column=0, sticky="ew",
+                 ipady=self._s(8), ipadx=self._s(8))
+        self._pill_btn(file_row, "Browse", self._browse).grid(
+                 row=0, column=1, padx=(self._s(8), 0))
 
     def _build_action_row(self, parent, grid_row=2):
-        """SAMPLE MASS card on left + Convert & Save button on right, same grid row."""
-        self._readout_mass = tk.StringVar(value="\u2014")
+        """SAMPLE MASS card (left) + Convert & Save button (right) on one row."""
+        self._readout_mass = tk.StringVar(value="—")
         card = tk.Frame(parent, bg=self.SURFACE,
                         highlightthickness=1, highlightbackground=self.BORDER)
         card.grid(row=grid_row, column=0, sticky="w")
-        tk.Label(card, text="SAMPLE MASS", font=("Segoe UI Semibold", 7),
-                 bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w", padx=10, pady=(8, 4))
-        tk.Label(card, textvariable=self._readout_mass, font=("Consolas", 13),
-                 bg=self.SURFACE, fg=self.TEXT).pack(anchor="w", padx=10)
-        tk.Label(card, text="mg", font=("Segoe UI", 7),
-                 bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w", padx=10, pady=(2, 8))
+        p = self._s(10)
+        tk.Label(card, text="SAMPLE MASS", font=self._f("Segoe UI Semibold", 7),
+                 bg=self.SURFACE, fg=self.TEXT_DIM).pack(
+                 anchor="w", padx=p, pady=(self._s(8), self._s(4)))
+        tk.Label(card, textvariable=self._readout_mass,
+                 font=self._f("Consolas", 13),
+                 bg=self.SURFACE, fg=self.TEXT).pack(anchor="w", padx=p)
+        tk.Label(card, text="mg", font=self._f("Segoe UI", 7),
+                 bg=self.SURFACE, fg=self.TEXT_DIM).pack(
+                 anchor="w", padx=p, pady=(self._s(2), self._s(8)))
 
         self._btn_run = tk.Button(parent, text="Convert & Save",
-                                  font=("Segoe UI Semibold", 10),
+                                  font=self._f("Segoe UI Semibold", 10),
                                   bg=self.ACCENT, fg=self.BG, relief="flat",
-                                  activebackground=self.ACCENT_DIM, activeforeground=self.TEXT,
-                                  cursor="hand2", command=self._run, padx=20, pady=8)
+                                  activebackground=self.ACCENT_DIM,
+                                  activeforeground=self.TEXT,
+                                  cursor="hand2", command=self._run,
+                                  padx=self._s(20), pady=self._s(8))
         self._btn_run.grid(row=grid_row, column=0, sticky="e")
 
     def _make_canvas(self, parent):
-        # Create a Figure and embed a TkAgg canvas in parent. Returns (fig, canvas)
         fig = Figure(figsize=(8, 4), dpi=96, facecolor=self.BG, edgecolor=self.BG)
         fig.patch.set_linewidth(0)
         canvas = FigureCanvasTkAgg(fig, master=parent)
@@ -93,22 +122,23 @@ class BaseModule(tk.Frame):
         return fig, canvas
 
     def _pill_btn(self, parent, text, cmd):
-        return tk.Button(parent, text=text, font=self.FONT_UI,
+        return tk.Button(parent, text=text, font=self._f("Segoe UI", 10),
                          bg=self.SURFACE, fg=self.TEXT, relief="flat",
                          activebackground=self.BORDER, activeforeground=self.TEXT,
                          highlightthickness=1, highlightbackground=self.BORDER,
-                         cursor="hand2", command=cmd, padx=14, pady=7)
+                         cursor="hand2", command=cmd,
+                         padx=self._s(14), pady=self._s(7))
 
     def _style_ax(self, ax, title="", xlabel="", ylabel=""):
         ax.set_facecolor(self.SURFACE)
-        ax.tick_params(colors=self.TEXT_DIM, labelsize=7.5)
+        ax.tick_params(colors=self.TEXT_DIM, labelsize=self._mpl(7.5))
         ax.xaxis.label.set_color(self.TEXT_DIM)
         ax.yaxis.label.set_color(self.TEXT_DIM)
         for spine in ax.spines.values():
             spine.set_edgecolor(self.BORDER)
-        ax.set_xlabel(xlabel, fontsize=8)
-        ax.set_ylabel(ylabel, fontsize=8)
-        ax.set_title(title, color=self.TEXT_DIM, fontsize=8.5, pad=6)
+        ax.set_xlabel(xlabel, fontsize=self._mpl(8))
+        ax.set_ylabel(ylabel, fontsize=self._mpl(8))
+        ax.set_title(title, color=self.TEXT_DIM, fontsize=self._mpl(8.5), pad=self._s(6))
         ax.grid(True, color=self.GRID_COLOR, linewidth=0.6, linestyle="-")
         ax.set_axisbelow(True)
 
@@ -130,9 +160,8 @@ class BaseModule(tk.Frame):
             self._reset()
 
     def _start_conversion(self, *process_args):
-        # Disable the run button, spin up the worker thread, re-enable on finish
-        self._btn_run.config(state="disabled", text="Converting\u2026")
-        self._status_cb("Processing\u2026", self.ACCENT)
+        self._btn_run.config(state="disabled", text="Converting…")
+        self._status_cb("Processing…", self.ACCENT)
 
         def worker():
             try:
@@ -145,23 +174,28 @@ class BaseModule(tk.Frame):
         threading.Thread(target=worker, daemon=True).start()
 
     def _finish(self, rows, csv_path, output_dir):
-        # Common UI update after a successful conversion. Call from subclass _done()
         self._btn_run.config(state="normal", text="Convert & Save")
-        self._status_cb(f"\u2713  Done  \u00b7  {output_dir}", self.SUCCESS)
+        self._status_cb(f"✓  Done  ·  {output_dir}", self.SUCCESS)
         self._drag_chip.set_path(csv_path)
-        self._drag_chip.pack(side="right", padx=12, pady=4)
-        self._result_var.set(f"\u2713  {rows} rows saved  \u00b7  {csv_path}")
+        self._drag_chip.pack(side="right", padx=self._s(12), pady=self._s(4))
+        self._result_var.set(f"✓  {rows} rows saved  ·  {csv_path}")
         self._result_lbl.config(fg=self.SUCCESS)
 
     def _reset_common(self):
-        # Reset the status strip. Call at the top of each subclass _reset()
         self._drag_chip.pack_forget()
         self._result_var.set("No file loaded.")
         self._result_lbl.config(fg=self.TEXT_DIM)
 
     def _error(self, msg):
         self._btn_run.config(state="normal", text="Convert & Save")
-        self._status_cb(f"\u2717  Error: {msg}", self.ERROR)
+        self._status_cb(f"✗  Error: {msg}", self.ERROR)
         self._drag_chip.pack_forget()
-        self._result_var.set(f"\u2717  {msg}")
+        self._result_var.set(f"✗  {msg}")
         self._result_lbl.config(fg=self.ERROR)
+
+    # ── Abstract interface ─────────────────────────────────────────────────────
+
+    def _reset(self):   raise NotImplementedError
+    def _process(self, *a): raise NotImplementedError
+    def _done(self, *a):    raise NotImplementedError
+    def _run(self):     raise NotImplementedError

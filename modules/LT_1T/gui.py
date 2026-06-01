@@ -1,10 +1,9 @@
 import tkinter as tk
-
 from modules.base_gui import BaseModule
 from .processing import process_dat
 
-SUBPLOT_KW   = dict(left=0.12, right=0.97, top=0.91, bottom=0.18)
-ACCENT_LINE  = "#c46828"
+SUBPLOT_KW  = dict(left=0.12, right=0.97, top=0.91, bottom=0.18)
+ACCENT_LINE = "#c46828"
 
 
 class LT1TModule(BaseModule):
@@ -19,14 +18,15 @@ class LT1TModule(BaseModule):
 
     def _build_controls(self):
         strip = tk.Frame(self, bg=self.BG)
-        strip.pack(pady=(20, 12), padx=40, fill="x")
+        strip.pack(pady=(self._s(20), self._s(12)), padx=self._s(40), fill="x")
         strip.columnconfigure(0, weight=1)
         self._build_file_row(strip, grid_row=0)
         self._build_action_row(strip, grid_row=2)
 
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=self.BG)
-        fig_frame.pack(fill="both", expand=True, padx=28, pady=(10, 0))
+        fig_frame.pack(fill="both", expand=True,
+                       padx=self._s(28), pady=(self._s(10), 0))
         self._subplot_kw = SUBPLOT_KW
         self._fig, self._canvas = self._make_canvas(fig_frame)
         self._ax = self._fig.add_subplot(1, 1, 1)
@@ -35,7 +35,8 @@ class LT1TModule(BaseModule):
         fig_frame.bind("<Configure>", self._on_resize)
 
     def _refresh_ax(self):
-        self._style_ax(self._ax, title="Magnetization vs Temperature",
+        self._style_ax(self._ax,
+                       title="Magnetization vs Temperature",
                        xlabel="Temperature (K)",
                        ylabel="Magnetization (A m²/kg)")
 
@@ -44,7 +45,8 @@ class LT1TModule(BaseModule):
         self._refresh_ax()
         x, y = df["Temperature (K)"], df["Magnetization (A m^2/kg)"]
         self._ax.plot(x, y, color=ACCENT_LINE, linewidth=1.2, zorder=1)
-        self._ax.scatter(x, y, color=self.ACCENT, s=18, zorder=2, linewidths=0)
+        self._ax.scatter(x, y, color=self.ACCENT,
+                         s=self._s(18), zorder=2, linewidths=0)
         self._canvas.draw()
 
     def _reset(self):
@@ -62,10 +64,8 @@ class LT1TModule(BaseModule):
             return
         self._start_conversion(inp)
 
-    def _process(self, inp):
-        return process_dat(inp)
-
+    def _process(self, inp):   return process_dat(inp)
     def _done(self, rows, mass, csv_path, output_dir, df):
-        self._readout_mass.set(f"{mass}" if mass else "not found")
+        self._readout_mass.set(f"{mass:.3f}" if mass else "not found")
         self._draw_preview(df)
         self._finish(rows, csv_path, output_dir)

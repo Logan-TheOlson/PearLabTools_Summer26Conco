@@ -6,6 +6,7 @@ import os
 
 from PIL import Image, ImageTk
 from tkinterdnd2 import TkinterDnD
+from modules.base_gui import BaseModule
 from modules.Hysteresis.gui import VSMModule
 from modules.LT_1T.gui import LT1TModule
 from modules.ZFC.gui import ZFCModule
@@ -73,6 +74,14 @@ class App(TkinterDnD.Tk):
         # the reference display (1500x1000 on 2880x1800).
         self.update_idletasks()
         sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        scale = sw / 2880
+        BaseModule.SCALE = scale
+        self._s = lambda n: max(1, round(n * scale))
+        # Keep absolute font size constant across resolutions;
+        # only boost on screens smaller than the reference 2880x1800.
+        font_scale = max(1.0, 1.0 / scale)
+        BaseModule.FONT_SCALE = font_scale
+        self._f = lambda fam, sz, *ex: (fam, max(6, round(sz * scale * font_scale))) + ex
         w = int(sw * 1500 / 2880)
         h = int(sh * 1000 / 1800)
         x = (sw - w) // 2
@@ -95,7 +104,7 @@ class App(TkinterDnD.Tk):
         self._icon_img = None
         try:
             img = Image.open(resource_path("icon.png"))
-            img = img.resize((24, 24), Image.LANCZOS)
+            img = img.resize((self._s(24), self._s(24)), Image.LANCZOS)
             self._icon_img = ImageTk.PhotoImage(img)
         except Exception:
             pass
@@ -113,37 +122,37 @@ class App(TkinterDnD.Tk):
 
     def _build(self):
         # Custom title bar
-        titlebar = tk.Frame(self, bg=SURFACE, height=54)
+        titlebar = tk.Frame(self, bg=SURFACE, height=self._s(54))
         titlebar.pack(fill="x")
         titlebar.pack_propagate(False)
 
         # Icon + title
         if self._icon_img:
             tk.Label(titlebar, image=self._icon_img,
-                     bg=SURFACE).pack(side="left", padx=(14, 6), pady=15)
+                     bg=SURFACE).pack(side="left", padx=(self._s(14), self._s(6)), pady=self._s(15))
         tk.Label(titlebar, text="Orange Lab Tools",
-                 font=("Segoe UI Semibold", 11), bg=SURFACE, fg=TEXT).pack(
+                 font=self._f("Segoe UI Semibold", 11), bg=SURFACE, fg=TEXT).pack(
                  side="left", pady=0)
 
         # Window controls — right to left
-        btn_close = tk.Button(titlebar, text="✕", font=("Segoe UI", 11),
+        btn_close = tk.Button(titlebar, text="✕", font=self._f("Segoe UI", 11),
                               bg=SURFACE, fg=TEXT_DIM, relief="flat",
                               cursor="hand2", bd=0, command=self.destroy,
-                              padx=14, pady=14)
+                              padx=self._s(14), pady=self._s(14))
         btn_close.pack(side="right")
         _add_hover(btn_close, SURFACE, ERROR_DIM, TEXT_DIM, TEXT)
 
-        btn_max = tk.Button(titlebar, text="▢", font=("Segoe UI", 10),
+        btn_max = tk.Button(titlebar, text="▢", font=self._f("Segoe UI", 10),
                             bg=SURFACE, fg=TEXT_DIM, relief="flat",
                             cursor="hand2", bd=0, command=self._toggle_maximize,
-                            padx=14, pady=14)
+                            padx=self._s(14), pady=self._s(14))
         btn_max.pack(side="right")
         _add_hover(btn_max, SURFACE, BORDER)
 
-        btn_min = tk.Button(titlebar, text="─", font=("Segoe UI", 11),
+        btn_min = tk.Button(titlebar, text="─", font=self._f("Segoe UI", 11),
                             bg=SURFACE, fg=TEXT_DIM, relief="flat",
                             cursor="hand2", bd=0, command=self._toggle_minimize,
-                            padx=14, pady=14)
+                            padx=self._s(14), pady=self._s(14))
         btn_min.pack(side="right")
         _add_hover(btn_min, SURFACE, BORDER)
 
@@ -152,13 +161,13 @@ class App(TkinterDnD.Tk):
         titlebar.bind("<B1-Motion>",     self._drag_move)
 
         # Accent line
-        tk.Frame(self, bg=ACCENT, height=2).pack(fill="x")
+        tk.Frame(self, bg=ACCENT, height=max(1, self._s(2))).pack(fill="x")
 
         # Body: sidebar + content
         body = tk.Frame(self, bg=BG)
         body.pack(fill="both", expand=True)
 
-        self._sidebar = tk.Frame(body, bg=SIDEBAR, width=230)
+        self._sidebar = tk.Frame(body, bg=SIDEBAR, width=self._s(230))
         self._sidebar.pack(side="left", fill="y")
         self._sidebar.pack_propagate(False)
 
@@ -174,27 +183,27 @@ class App(TkinterDnD.Tk):
         bar.pack(fill="x", side="bottom")
         self._status = tk.StringVar(value="Ready.")
         self._status_lbl = tk.Label(bar, textvariable=self._status,
-                                    font=("Segoe UI", 9), bg=SURFACE, fg=TEXT_DIM)
-        self._status_lbl.pack(side="left", padx=18, pady=7)
+                                    font=self._f("Segoe UI", 9), bg=SURFACE, fg=TEXT_DIM)
+        self._status_lbl.pack(side="left", padx=self._s(18), pady=self._s(7))
 
     def _build_sidebar(self):
         tk.Label(self._sidebar, text="MODULES",
-                 font=("Segoe UI Semibold", 7), bg=SIDEBAR, fg=TEXT_DIM).pack(
-                 anchor="w", padx=16, pady=(18, 8))
+                 font=self._f("Segoe UI Semibold", 7), bg=SIDEBAR, fg=TEXT_DIM).pack(
+                 anchor="w", padx=self._s(16), pady=(self._s(18), self._s(8)))
 
         for name, subtitle, cls in MODULES:
             row = tk.Frame(self._sidebar, bg=SIDEBAR, cursor="hand2")
-            row.pack(fill="x", padx=8, pady=2)
+            row.pack(fill="x", padx=self._s(8), pady=self._s(2))
 
             name_lbl = tk.Label(row, text=name,
-                                font=("Segoe UI Semibold", 10),
+                                font=self._f("Segoe UI Semibold", 10),
                                 bg=SIDEBAR, fg=TEXT, anchor="w")
-            name_lbl.pack(fill="x", padx=8, pady=(6, 0))
+            name_lbl.pack(fill="x", padx=self._s(8), pady=(self._s(6), 0))
 
             sub_lbl = tk.Label(row, text=subtitle,
-                               font=("Segoe UI", 8),
+                               font=self._f("Segoe UI", 8),
                                bg=SIDEBAR, fg=TEXT_DIM, anchor="w")
-            sub_lbl.pack(fill="x", padx=8, pady=(0, 6))
+            sub_lbl.pack(fill="x", padx=self._s(8), pady=(0, self._s(6)))
 
             for widget in (row, name_lbl, sub_lbl):
                 widget.bind("<Button-1>", lambda e, n=name: self._select(n))

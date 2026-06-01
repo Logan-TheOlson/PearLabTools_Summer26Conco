@@ -28,8 +28,6 @@ class VSMModule(BaseModule):
         self._build()
         self._show_placeholder()
 
-    # ── Layout ────────────────────────────────────────────────────────────────
-
     def _build(self):
         self._build_result_strip()
         self._build_controls()
@@ -38,41 +36,43 @@ class VSMModule(BaseModule):
 
     def _build_controls(self):
         strip = tk.Frame(self, bg=self.BG)
-        strip.pack(pady=(20, 12), padx=40, fill="x")
+        strip.pack(pady=(self._s(20), self._s(12)), padx=self._s(40), fill="x")
         strip.columnconfigure(0, weight=1)
-
         self._build_file_row(strip, grid_row=0)
 
         tk.Label(strip, text="TEMPERATURE BANDS  (K, comma-separated)",
-                 font=("Segoe UI Semibold", 8), bg=self.BG, fg=self.TEXT_DIM).grid(
-                 row=2, column=0, sticky="w", pady=(0, 4))
+                 font=self._f("Segoe UI Semibold", 8),
+                 bg=self.BG, fg=self.TEXT_DIM).grid(
+                 row=2, column=0, sticky="w", pady=(0, self._s(4)))
         action_row = tk.Frame(strip, bg=self.BG)
         action_row.grid(row=3, column=0, sticky="ew")
         action_row.columnconfigure(0, weight=1)
 
         self._bands_entry = tk.Entry(action_row, textvariable=self._bands_var,
-                                     font=self.FONT_MONO, bg=self.SURFACE, fg=self.TEXT,
+                                     font=self._f("Consolas", 10),
+                                     bg=self.SURFACE, fg=self.TEXT,
                                      insertbackground=self.TEXT, relief="flat",
-                                     highlightthickness=1, highlightbackground=self.BORDER,
+                                     highlightthickness=1,
+                                     highlightbackground=self.BORDER,
                                      highlightcolor=self.ACCENT)
-        self._bands_entry.grid(row=0, column=0, sticky="ew", ipady=8, ipadx=8)
+        self._bands_entry.grid(row=0, column=0, sticky="ew",
+                               ipady=self._s(8), ipadx=self._s(8))
         self._bands_entry.bind("<FocusIn>",  self._on_bands_focus_in)
         self._bands_entry.bind("<FocusOut>", self._on_bands_focus_out)
 
         self._btn_run = tk.Button(action_row, text="Convert & Save",
-                                  font=("Segoe UI Semibold", 10),
+                                  font=self._f("Segoe UI Semibold", 10),
                                   bg=self.ACCENT, fg=self.BG, relief="flat",
-                                  activebackground=self.ACCENT_DIM, activeforeground=self.TEXT,
-                                  cursor="hand2", command=self._run, padx=20, pady=8)
-        self._btn_run.grid(row=0, column=1, padx=(10, 0))
+                                  activebackground=self.ACCENT_DIM,
+                                  activeforeground=self.TEXT,
+                                  cursor="hand2", command=self._run,
+                                  padx=self._s(20), pady=self._s(8))
+        self._btn_run.grid(row=0, column=1, padx=(self._s(10), 0))
 
     def _build_readouts(self):
         readout_row = tk.Frame(self, bg=self.BG)
-        readout_row.pack(padx=40, pady=(0, 8), fill="x")
-
+        readout_row.pack(padx=self._s(40), pady=(0, self._s(8)), fill="x")
         self._readout_mass = tk.StringVar(value="—")
-
-        # (title, unit, plot_data key, scale factor for display)
         self._metric_cards = [
             ("SAMPLE MASS",              "mg",           None,  1),
             ("SATURATION MAGNETIZATION", "A m²/kg", "Ms",  1),
@@ -80,45 +80,45 @@ class VSMModule(BaseModule):
             ("COERCIVE FIELD",           "mT",           "Hc",  1000),
         ]
         self._param_frames = {}
-
+        p = self._s(10)
         for i, (title, unit, key, _) in enumerate(self._metric_cards):
             last = i == len(self._metric_cards) - 1
             card = tk.Frame(readout_row, bg=self.SURFACE,
                             highlightthickness=1, highlightbackground=self.BORDER)
-            card.grid(row=0, column=i, sticky="nsew", padx=(0, 0 if last else 8))
+            card.grid(row=0, column=i, sticky="nsew",
+                      padx=(0, 0 if last else self._s(8)))
             readout_row.columnconfigure(i, weight=1)
-
-            tk.Label(card, text=title, font=("Segoe UI Semibold", 7),
-                     bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w", padx=10, pady=(8, 4))
-
+            tk.Label(card, text=title, font=self._f("Segoe UI Semibold", 7),
+                     bg=self.SURFACE, fg=self.TEXT_DIM).pack(
+                     anchor="w", padx=p, pady=(self._s(8), self._s(4)))
             if key is None:
                 tk.Label(card, textvariable=self._readout_mass,
-                         font=("Consolas", 13), bg=self.SURFACE,
-                         fg=self.TEXT).pack(anchor="w", padx=10)
+                         font=self._f("Consolas", 13),
+                         bg=self.SURFACE, fg=self.TEXT).pack(anchor="w", padx=p)
             else:
                 content = tk.Frame(card, bg=self.SURFACE)
-                content.pack(fill="x", padx=10)
+                content.pack(fill="x", padx=p)
                 self._param_frames[key] = content
-                tk.Label(content, text="—", font=("Consolas", 11),
+                tk.Label(content, text="—", font=self._f("Consolas", 11),
                          bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w")
-
-            tk.Label(card, text=unit, font=("Segoe UI", 7),
-                     bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w", padx=10, pady=(2, 8))
+            tk.Label(card, text=unit, font=self._f("Segoe UI", 7),
+                     bg=self.SURFACE, fg=self.TEXT_DIM).pack(
+                     anchor="w", padx=p, pady=(self._s(2), self._s(8)))
 
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=self.BG)
-        fig_frame.pack(fill="both", expand=True, padx=28, pady=(10, 0))
+        fig_frame.pack(fill="both", expand=True,
+                       padx=self._s(28), pady=(self._s(10), 0))
         self._subplot_kw = SUBPLOT_KW
         self._fig, self._canvas = self._make_canvas(fig_frame)
         self._ax_raw  = self._fig.add_subplot(1, 2, 1)
         self._ax_corr = self._fig.add_subplot(1, 2, 2)
-        self._fig.text(0.02, 0.5, "Magnetization (A m²/kg)", va="center", ha="left",
-                       rotation="vertical", fontsize=8, color=self.TEXT_DIM)
+        self._fig.text(0.02, 0.5, "Magnetization (A m²/kg)",
+                       va="center", ha="left", rotation="vertical",
+                       fontsize=self._mpl(8), color=self.TEXT_DIM)
         self._fig.subplots_adjust(**SUBPLOT_KW)
         self._style_axes()
         fig_frame.bind("<Configure>", self._on_resize)
-
-    # ── Plot helpers ──────────────────────────────────────────────────────────
 
     def _style_axes(self):
         for ax, title in ((self._ax_raw,  "Original Hysteresis Loops"),
@@ -131,7 +131,6 @@ class VSMModule(BaseModule):
         self._ax_raw.clear()
         self._ax_corr.clear()
         self._style_axes()
-
         all_y_raw, all_y_corr = [], []
         for label in self._band_labels:
             data = self._plot_data.get(label)
@@ -139,38 +138,33 @@ class VSMModule(BaseModule):
                 continue
             all_y_raw.extend(data["y"])
             all_y_corr.extend(data["corrected"] if data["corrected"] is not None else data["y"])
-
         for label in self._band_labels:
             data = self._plot_data.get(label)
             if data is None or data["x"] is None:
                 continue
             color = band_color(label, self._band_labels)
-            self._ax_raw.plot(data["x"], data["y"], color=color, linewidth=1.4, label=label)
+            self._ax_raw.plot(data["x"], data["y"], color=color,
+                              linewidth=1.4, label=label)
             if data["corrected"] is not None:
                 self._ax_corr.plot(data["x"], data["corrected"],
                                    color=color, linewidth=1.4, label=label)
             else:
-                self._ax_corr.plot(data["x"], data["y"], color=color, linewidth=1.4,
-                                   linestyle="--", alpha=0.5,
+                self._ax_corr.plot(data["x"], data["y"], color=color,
+                                   linewidth=1.4, linestyle="--", alpha=0.5,
                                    label=f"{label} (no correction)")
-
-        # lock both plots to the same y range so they are visually comparable
         if all_y_raw and all_y_corr:
             y_min = min(min(all_y_raw), min(all_y_corr))
             y_max = max(max(all_y_raw), max(all_y_corr))
             pad   = (y_max - y_min) * 0.06
             for ax in (self._ax_raw, self._ax_corr):
                 ax.set_ylim(y_min - pad, y_max + pad)
-
         for ax in (self._ax_raw, self._ax_corr):
-            ax.legend(fontsize=7.5, facecolor=self.SURFACE,
+            ax.legend(fontsize=self._mpl(7.5), facecolor=self.SURFACE,
                       edgecolor=self.BORDER, labelcolor=self.TEXT)
         self._canvas.draw()
 
-    # ── Readout helpers ───────────────────────────────────────────────────────
-
     def _update_readouts(self, band_labels, plot_data, mass):
-        self._readout_mass.set(f"{mass}" if mass else "not found")
+        self._readout_mass.set(f"{mass:.3f}" if mass else "not found")
         for _, _, key, scale in self._metric_cards:
             if key is None:
                 continue
@@ -181,15 +175,15 @@ class VSMModule(BaseModule):
                 val = (plot_data.get(label) or {}).get(key)
                 row = tk.Frame(frame, bg=self.SURFACE)
                 row.pack(fill="x", pady=1)
-                tk.Label(row, text=label, font=("Segoe UI", 8),
+                tk.Label(row, text=label, font=self._f("Segoe UI", 8),
                          bg=self.SURFACE, fg=self.TEXT_DIM,
                          width=6, anchor="w").pack(side="left")
-                tk.Label(row, text=f"{val * scale:.2f}" if val is not None else "—",
-                         font=("Consolas", 11), bg=self.SURFACE,
+                tk.Label(row,
+                         text=f"{val * scale:.3f}" if val is not None else "—",
+                         font=self._f("Consolas", 11),
+                         bg=self.SURFACE,
                          fg=self.TEXT if val is not None else self.TEXT_DIM,
                          anchor="e").pack(side="right")
-
-    # ── Band placeholder helpers ───────────────────────────────────────────────
 
     def _show_placeholder(self):
         self._bands_var.set(", ".join(str(t) for t in self._bands_placeholder))
@@ -242,14 +236,10 @@ class VSMModule(BaseModule):
             self._result_lbl.config(fg=self.ERROR)
             return None
 
-    # ── Override browse to also detect bands ─────────────────────────────────
-
     def _browse(self):
         super()._browse()
         if self._input_path.get():
             self._detect_bands(self._input_path.get())
-
-    # ── Reset ─────────────────────────────────────────────────────────────────
 
     def _reset(self):
         self._reset_common()
@@ -257,7 +247,7 @@ class VSMModule(BaseModule):
         for key, frame in self._param_frames.items():
             for w in frame.winfo_children():
                 w.destroy()
-            tk.Label(frame, text="—", font=("Consolas", 11),
+            tk.Label(frame, text="—", font=self._f("Consolas", 11),
                      bg=self.SURFACE, fg=self.TEXT_DIM).pack(anchor="w")
         self._ax_raw.clear()
         self._ax_corr.clear()
@@ -266,8 +256,6 @@ class VSMModule(BaseModule):
         self._plot_data   = None
         self._band_labels = []
         self._show_placeholder()
-
-    # ── Run / process / done ──────────────────────────────────────────────────
 
     def _run(self):
         inp = self._input_path.get().strip()
