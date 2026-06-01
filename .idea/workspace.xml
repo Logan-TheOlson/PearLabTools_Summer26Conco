@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop." />
+    <list default="true" id="c92f72ee-ba11-4924-8d46-75730383b0df" name="Changes" comment="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop.">
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -134,7 +136,7 @@
       <workItem from="1780078650560" duration="813000" />
       <workItem from="1780080007787" duration="1376000" />
       <workItem from="1780326545796" duration="8039000" />
-      <workItem from="1780344264019" duration="1067000" />
+      <workItem from="1780344264019" duration="1484000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -328,7 +330,23 @@
       <option name="project" value="LOCAL" />
       <updated>1780345251985</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop.">
+      <option name="closed" value="true" />
+      <created>1780345423579</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1780345423579</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Implemented RTSIRM, renamed some GUI elements, minimalized duplicate code, and implemented built in drag and drop.">
+      <option name="closed" value="true" />
+      <created>1780345481826</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1780345481826</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
