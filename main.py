@@ -69,13 +69,16 @@ class App(TkinterDnD.Tk):
         self.overrideredirect(True)
         self.configure(bg=BG)
 
-        # Center on screen
+        # Scale window to the same proportion of screen real-estate as designed on
+        # the reference display (1500x1000 on 2880x1800).
         self.update_idletasks()
-        w, h = 1500, 1000
-        x = (self.winfo_screenwidth()  - w) // 2
-        y = (self.winfo_screenheight() - h) // 2
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        w = int(sw * 1500 / 2880)
+        h = int(sh * 1000 / 1800)
+        x = (sw - w) // 2
+        y = (sh - h) // 2
         self.geometry(f"{w}x{h}+{x}+{y}")
-        self.minsize(1100, 720)
+        self.minsize(int(sw * 1100 / 2880), int(sh * 720 / 1800))
 
         # Apply rounded corners (Windows 11 only)
         if sys.platform == "win32":
