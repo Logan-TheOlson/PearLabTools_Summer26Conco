@@ -25,6 +25,7 @@ class VSMModule(BaseModule):
         self._using_placeholder = True
         self._plot_data         = None
         self._band_labels       = []
+        self._remove_para_var   = tk.BooleanVar(value=True)
         self._build()
         self._show_placeholder()
 
@@ -60,6 +61,17 @@ class VSMModule(BaseModule):
         self._bands_entry.bind("<FocusIn>",  self._on_bands_focus_in)
         self._bands_entry.bind("<FocusOut>", self._on_bands_focus_out)
 
+        chk_wrap = tk.Frame(action_row, bg=self.BG, cursor="hand2")
+        chk_wrap.grid(row=0, column=1, padx=(self._s(14), 0))
+        self._chk_canvas = self._make_checkbox_canvas(chk_wrap, self._remove_para_var)
+        self._chk_canvas.pack(side="left", padx=(0, self._s(6)))
+        chk_lbl = tk.Label(chk_wrap, text="REMOVE PARAMAGNETIC\nCONTRIBUTION",
+                           font=self._f("Segoe UI Semibold", 8),
+                           bg=self.BG, fg=self.TEXT_DIM, justify="left",
+                           cursor="hand2")
+        chk_lbl.pack(side="left")
+        chk_lbl.bind("<Button-1>", lambda e: self._toggle_para())
+
         self._btn_run = tk.Button(action_row, text="Convert & Save",
                                   font=self._f("Segoe UI Semibold", 10),
                                   bg=self.ACCENT, fg=self.BG, relief="flat",
@@ -67,7 +79,7 @@ class VSMModule(BaseModule):
                                   activeforeground=self.TEXT,
                                   cursor="hand2", command=self._run,
                                   padx=self._s(20), pady=self._s(8))
-        self._btn_run.grid(row=0, column=1, padx=(self._s(10), 0))
+        self._btn_run.grid(row=0, column=2, padx=(self._s(10), 0))
 
     def _build_readouts(self):
         readout_row = tk.Frame(self, bg=self.BG)
@@ -118,11 +130,54 @@ class VSMModule(BaseModule):
                        fontsize=self._mpl(8), color=self.TEXT_DIM)
         self._fig.subplots_adjust(**SUBPLOT_KW)
         self._style_axes()
+        self._on_para_toggle()
         fig_frame.bind("<Configure>", self._on_resize)
 
+    def _make_checkbox_canvas(self, parent, var):
+        size = self._s(20)
+        c = tk.Canvas(parent, width=size, height=size,
+                      bg=self.BG, highlightthickness=0, cursor="hand2")
+        c._var  = var
+        c._size = size
+        var.trace_add("write", lambda *_: self._redraw_checkbox(c))
+        c.bind("<Button-1>", lambda e: self._toggle_para())
+        self._redraw_checkbox(c)
+        return c
+
+    def _redraw_checkbox(self, c):
+        c.delete("all")
+        s = c._size
+        pad = max(1, self._s(2))
+        c.create_rectangle(pad, pad, s - pad, s - pad,
+                           outline=self.BORDER, fill=self.SURFACE, width=self._s(1))
+        if c._var.get():
+            m = s * 0.18
+            c.create_line(m, s * 0.5, s * 0.4, s - m, s - m, m,
+                          fill=self.ACCENT, width=self._s(2),
+                          capstyle="round", joinstyle="round")
+
+    def _toggle_para(self):
+        self._remove_para_var.set(not self._remove_para_var.get())
+        self._on_para_toggle()
+
+    def _on_para_toggle(self):
+        show = self._remove_para_var.get()
+        self._ax_corr.set_visible(show)
+        kw = SUBPLOT_KW
+        if show:
+            self._fig.subplots_adjust(**kw)
+        else:
+            self._ax_raw.set_position([kw["left"], kw["bottom"],
+                                       kw["right"] - kw["left"],
+                                       kw["top"] - kw["bottom"]])
+        self._canvas.draw_idle()
+
     def _style_axes(self):
+        corr_title = ("Paramagnetic Contribution Removed"
+                      if self._remove_para_var.get()
+                      else "Hysteresis Loops (No Correction)")
         for ax, title in ((self._ax_raw,  "Original Hysteresis Loops"),
-                          (self._ax_corr, "Paramagnetic Contribution Removed")):
+                          (self._ax_corr, corr_title)):
             self._style_ax(ax, title=title, xlabel="Field (T)")
             ax.axhline(0, color=self.BORDER, linewidth=0.8)
             ax.axvline(0, color=self.BORDER, linewidth=0.8)
@@ -161,7 +216,7 @@ class VSMModule(BaseModule):
         for ax in (self._ax_raw, self._ax_corr):
             ax.legend(fontsize=self._mpl(7.5), facecolor=self.SURFACE,
                       edgecolor=self.BORDER, labelcolor=self.TEXT)
-        self._canvas.draw()
+        self._on_para_toggle()
 
     def _update_readouts(self, band_labels, plot_data, mass):
         self._readout_mass.set(f"{mass:.3f}" if mass else "not found")
@@ -252,7 +307,7 @@ class VSMModule(BaseModule):
         self._ax_raw.clear()
         self._ax_corr.clear()
         self._style_axes()
-        self._canvas.draw()
+        self._on_para_toggle()
         self._plot_data   = None
         self._band_labels = []
         self._show_placeholder()
@@ -266,10 +321,11 @@ class VSMModule(BaseModule):
         band_temps = self._parse_band_temps()
         if band_temps is None:
             return
-        self._start_conversion(inp, band_temps)
+        remove_para = self._remove_para_var.get()
+        self._start_conversion(inp, band_temps, remove_para)
 
-    def _process(self, inp, band_temps):
-        return process_dat(inp, band_temps)
+    def _process(self, inp, band_temps, remove_para):
+        return process_dat(inp, band_temps, remove_paramagnetic=remove_para)
 
     def _done(self, rows, mass, csv_path, output_dir, plot_data, band_ranges):
         self._plot_data   = plot_data

@@ -193,9 +193,32 @@ class BaseModule(tk.Frame):
         self._result_var.set(f"✗  {msg}")
         self._result_lbl.config(fg=self.ERROR)
 
+    # ── Default implementations (override in subclasses as needed) ────────────
+
+    def _build_controls(self):
+        strip = tk.Frame(self, bg=self.BG)
+        strip.pack(pady=(self._s(20), self._s(12)), padx=self._s(40), fill="x")
+        strip.columnconfigure(0, weight=1)
+        self._build_file_row(strip, grid_row=0)
+        self._build_action_row(strip, grid_row=2)
+
+    def _run(self):
+        inp = self._input_path.get().strip()
+        if not inp:
+            self._result_var.set("✗  Please select an input file.")
+            self._result_lbl.config(fg=self.ERROR)
+            return
+        self._start_conversion(inp)
+
+    def _reset(self):
+        self._reset_common()
+        self._readout_mass.set("—")
+        self._ax.clear()
+        self._refresh_ax()
+        self._canvas.draw()
+
     # ── Abstract interface ─────────────────────────────────────────────────────
 
-    def _reset(self):   raise NotImplementedError
+    def _refresh_ax(self): pass
     def _process(self, *a): raise NotImplementedError
     def _done(self, *a):    raise NotImplementedError
-    def _run(self):     raise NotImplementedError

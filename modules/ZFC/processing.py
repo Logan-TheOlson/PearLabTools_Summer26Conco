@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 
 from modules.dat_reader import setup_output, read_dat_header, load_dataframe, \
                                to_magnetization
@@ -35,7 +36,6 @@ def process_dat(input_path):
     y_fc  = np.interp(x, fc["Temperature (K)"].values,
                       fc["Magnetization (A m^2/kg)"].values)
 
-    import pandas as pd
     out = pd.DataFrame({
         "Temperature (K)":              x,
         "Magnetization ZFC (A m^2/kg)": y_zfc,

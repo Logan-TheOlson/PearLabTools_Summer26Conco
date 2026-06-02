@@ -9,7 +9,7 @@ DEFAULT_BANDS   = [50, 150, 300]
 BAND_HALF_WIDTH = 1  # +-K around each target temperature
 
 
-def process_dat(input_path, band_temps=None):
+def process_dat(input_path, band_temps=None, remove_paramagnetic=True):
     if band_temps is None:
         band_temps = DEFAULT_BANDS
 
@@ -32,7 +32,7 @@ def process_dat(input_path, band_temps=None):
 
     for label, lo, hi in band_ranges:
         band  = df[(df[temp_col] >= lo) & (df[temp_col] <= hi)].copy().reset_index(drop=True)
-        pdata = compute_band(band)
+        pdata = compute_band(band, remove_paramagnetic=remove_paramagnetic)
         plot_data[label] = pdata
 
         if pdata["corrected"] is not None:
@@ -56,28 +56,29 @@ def process_dat(input_path, band_temps=None):
     return len(frames[0]), mass, csv_path, output_dir, plot_data, band_ranges
 
 
-def compute_band(band):
+def compute_band(band, remove_paramagnetic=True):
     if band.empty:
         return {"x": None, "y": None, "corrected": None, "roots": None,
                 "Ms": None, "Mr": None, "Hc": None}
 
     x, y  = band["Field (T)"].to_numpy(), band["Magnetization (A m^2/kg)"].to_numpy()
-    roots = get_roots(x, y)
-    corrected = Ms = Mr = Hc = None
+    corrected = Ms = Mr = Hc = roots = None
 
-    if roots is not None:
-        slope     = roots_to_slope(roots, x, y)
-        corrected = y - slope * x
+    if remove_paramagnetic:
+        roots = get_roots(x, y)
+        if roots is not None:
+            slope     = roots_to_slope(roots, x, y)
+            corrected = y - slope * x
 
-        # Ms: mean |magnetization| across the high-field saturation wings
-        left_vals  = corrected[x < roots[0]]
-        right_vals = corrected[x > roots[-1]]
-        wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
-        if wing_means:
-            Ms = float(np.mean(np.abs(wing_means)))
+            # Ms: mean |magnetization| across the high-field saturation wings
+            left_vals  = corrected[x < roots[0]]
+            right_vals = corrected[x > roots[-1]]
+            wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
+            if wing_means:
+                Ms = float(np.mean(np.abs(wing_means)))
 
-        Mr = _interpolate_at_zero(x, corrected)   # M at H=0
-        Hc = _interpolate_at_zero(corrected, x)   # H at M=0
+            Mr = _interpolate_at_zero(x, corrected)   # M at H=0
+            Hc = _interpolate_at_zero(corrected, x)   # H at M=0
 
     return {"x": x, "y": y, "corrected": corrected, "roots": roots,
             "Ms": Ms, "Mr": Mr, "Hc": Hc}

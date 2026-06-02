@@ -29,7 +29,7 @@ def read_dat_header(input_path):
 
     if data_start is None:
         raise ValueError("No [Data] section found - is this a VersaLab .DAT file?")
-    if not mass:
+    if mass is None:
         raise ValueError("SAMPLE_MASS not found in file header.")
 
     return lines, mass, data_start
@@ -40,6 +40,9 @@ def load_dataframe(input_path, lines, data_start, columns):
     sample_line = lines[data_start + 1]
     delimiter = "\t" if "\t" in sample_line else ","
     df = pd.read_csv(input_path, skiprows=data_start + 1, sep=delimiter)
+    missing = [c for c in columns if c not in df.columns]
+    if missing:
+        raise ValueError(f"Expected columns not found in file: {', '.join(missing)}")
     return df[columns]
 
 

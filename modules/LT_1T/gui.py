@@ -16,13 +16,6 @@ class LT1TModule(BaseModule):
         self._build_controls()
         self._build_preview()
 
-    def _build_controls(self):
-        strip = tk.Frame(self, bg=self.BG)
-        strip.pack(pady=(self._s(20), self._s(12)), padx=self._s(40), fill="x")
-        strip.columnconfigure(0, weight=1)
-        self._build_file_row(strip, grid_row=0)
-        self._build_action_row(strip, grid_row=2)
-
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=self.BG)
         fig_frame.pack(fill="both", expand=True,
@@ -48,21 +41,6 @@ class LT1TModule(BaseModule):
         self._ax.scatter(x, y, color=self.ACCENT,
                          s=self._s(18), zorder=2, linewidths=0)
         self._canvas.draw()
-
-    def _reset(self):
-        self._reset_common()
-        self._readout_mass.set("—")
-        self._ax.clear()
-        self._refresh_ax()
-        self._canvas.draw()
-
-    def _run(self):
-        inp = self._input_path.get().strip()
-        if not inp:
-            self._result_var.set("✗  Please select an input file.")
-            self._result_lbl.config(fg=self.ERROR)
-            return
-        self._start_conversion(inp)
 
     def _process(self, inp):   return process_dat(inp)
     def _done(self, rows, mass, csv_path, output_dir, df):

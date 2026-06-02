@@ -15,12 +15,14 @@
       <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/warn-Orange Lab Tools.txt" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/warn-Orange Lab Tools.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/Orange Lab Tools/xref-Orange Lab Tools.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/Orange Lab Tools/xref-Orange Lab Tools.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/Orange Lab Tools.exe" beforeDir="false" afterPath="$PROJECT_DIR$/dist/Orange Lab Tools.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/Hysteresis/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/Hysteresis/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/Hysteresis/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/Hysteresis/processing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/LT_1T/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/LT_1T/gui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/RTSIRM/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/RTSIRM/gui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/ZFC/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/ZFC/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/ZFC/processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/ZFC/processing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/base_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/base_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/dat_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dat_reader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +154,8 @@
       <workItem from="1780080007787" duration="1376000" />
       <workItem from="1780326545796" duration="8039000" />
       <workItem from="1780344264019" duration="2403000" />
-      <workItem from="1780347391106" duration="209000" />
+      <workItem from="1780347391106" duration="490000" />
+      <workItem from="1780415471932" duration="2086000" />
     </task>
     <task id="LOCAL-00001" summary="trest">
       <option name="closed" value="true" />
@@ -394,7 +397,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780346878733</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="implemented auto scaling to match resolution scale">
+      <option name="closed" value="true" />
+      <created>1780347710126</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1780347710127</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -432,6 +443,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="implemented auto scaling to match resolution scale" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780347506260" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Summer2026_ConcoPhys$main.coverage" NAME="main Coverage Results" MODIFIED="1780416199205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
