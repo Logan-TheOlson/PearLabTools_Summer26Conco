@@ -32,17 +32,11 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-# ── Palette ───────────────────────────────────────────────────────────────────
-BG         = "#282826"
-SURFACE    = "#313130"
-SIDEBAR    = "#2b2b29"
-BORDER     = "#454540"
-ACCENT     = "#c8982a"
-ACCENT_DIM = "#a07820"
-TEXT       = "#e8e8e8"
-TEXT_DIM   = "#7a7a7a"
-ERROR      = "#f07070"
-ERROR_DIM  = "#a03030"
+# ── Palette (single source: modules/theme.py) ──────────────────────────────────
+from modules.theme import (
+    BG, SURFACE, SIDEBAR, BORDER, ACCENT, ACCENT_DIM,
+    TEXT, TEXT_DIM, ERROR, ERROR_DIM,
+)
 
 MODULES = [
     ("Hysteresis", "DAT → CSV", VSMModule),
@@ -131,10 +125,12 @@ class App(TkinterDnD.Tk):
         except Exception:
             pass
 
-        self._drag_x        = 0
-        self._drag_y        = 0
-        self._restoring     = False
-        self._active_module = None
+        self._drag_x          = 0
+        self._drag_y          = 0
+        self._restoring       = False
+        self._maximized       = False
+        self._normal_geometry = None
+        self._active_module   = None
         self._nav_buttons   = {}
         self._panels        = {}
         self._build()
@@ -391,8 +387,10 @@ class App(TkinterDnD.Tk):
         self.geometry(f"+{x}+{y}")
 
     def _resize_start(self, event):
-        if self.state() == "zoomed":
-            self.state("normal")
+        if self._maximized or self.state() == "zoomed":
+            if self.state() == "zoomed":
+                self.state("normal")
+            self._maximized = False
             self._btn_max.config(text="▢")
             self.update_idletasks()
         self._resize_x = event.x_root
@@ -405,13 +403,49 @@ class App(TkinterDnD.Tk):
         new_h = max(self._min_h, self._resize_h + event.y_root - self._resize_y)
         self.geometry(f"{new_w}x{new_h}")
 
+    def _work_area(self):
+        """Work area (screen minus taskbar) of the monitor the window is on."""
+        if sys.platform != "win32":
+            return None
+        try:
+            user32 = ctypes.windll.user32
+            MONITOR_DEFAULTTONEAREST = 2
+            monitor = user32.MonitorFromWindow(_hwnd(self), MONITOR_DEFAULTTONEAREST)
+
+            class MONITORINFO(ctypes.Structure):
+                _fields_ = [("cbSize",    ctypes.wintypes.DWORD),
+                            ("rcMonitor", ctypes.wintypes.RECT),
+                            ("rcWork",    ctypes.wintypes.RECT),
+                            ("dwFlags",   ctypes.wintypes.DWORD)]
+
+            mi = MONITORINFO()
+            mi.cbSize = ctypes.sizeof(MONITORINFO)
+            if user32.GetMonitorInfoW(monitor, ctypes.byref(mi)):
+                r = mi.rcWork
+                return (r.left, r.top, r.right - r.left, r.bottom - r.top)
+        except Exception:
+            pass
+        return None
+
     def _toggle_maximize(self):
-        if self.state() == "zoomed":
-            self.state("normal")
+        # Restore
+        if self._maximized:
+            if self._normal_geometry:
+                self.geometry(self._normal_geometry)
+            self._maximized = False
             self._btn_max.config(text="▢")
-        else:
-            self.state("zoomed")
+            return
+        # Maximize to the work area so the taskbar stays visible
+        area = self._work_area()
+        if area:
+            self._normal_geometry = self.geometry()
+            x, y, w, h = area
+            self.geometry(f"{w}x{h}+{x}+{y}")
+            self._maximized = True
             self._btn_max.config(text="❐")
+        else:
+            self.state("zoomed" if self.state() != "zoomed" else "normal")
+            self._btn_max.config(text="❐" if self.state() == "zoomed" else "▢")
 
     def _set_status(self, msg, color=TEXT_DIM):
         self._status.set(msg)

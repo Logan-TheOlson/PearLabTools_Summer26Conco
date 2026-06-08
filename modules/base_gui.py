@@ -9,6 +9,8 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from modules.drag_file import FileDragWidget
+from modules import theme
+from tkinterdnd2 import DND_FILES
 
 
 class BaseModule(tk.Frame):
@@ -18,17 +20,17 @@ class BaseModule(tk.Frame):
     # Set by main.py alongside SCALE.
     FONT_SCALE = 1.0
 
-    # ── Palette ───────────────────────────────────────────────────────────────
-    BG         = "#282826"
-    SURFACE    = "#313130"
-    BORDER     = "#454540"
-    ACCENT     = "#c8982a"
-    ACCENT_DIM = "#a07820"
-    TEXT       = "#e8e8e8"
-    TEXT_DIM   = "#7a7a7a"
-    GRID_COLOR = "#353533"
-    SUCCESS    = "#5dd6a0"
-    ERROR      = "#f07070"
+    # ── Palette (single source: modules/theme.py) ──────────────────────────────
+    BG         = theme.BG
+    SURFACE    = theme.SURFACE
+    BORDER     = theme.BORDER
+    ACCENT     = theme.ACCENT
+    ACCENT_DIM = theme.ACCENT_DIM
+    TEXT       = theme.TEXT
+    TEXT_DIM   = theme.TEXT_DIM
+    GRID_COLOR = theme.GRID_COLOR
+    SUCCESS    = theme.SUCCESS
+    ERROR      = theme.ERROR
 
     def __init__(self, parent, status_cb=None, **kwargs):
         super().__init__(parent, bg=self.BG, **kwargs)
@@ -67,22 +69,28 @@ class BaseModule(tk.Frame):
         self._drag_chip.pack_forget()
 
     def _build_file_row(self, parent, grid_row=0):
-        tk.Label(parent, text="INPUT FILE  (.DAT)",
+        header = tk.Frame(parent, bg=self.BG)
+        header.grid(row=grid_row, column=0, columnspan=2, sticky="w",
+                    pady=(0, self._s(4)))
+        tk.Label(header, text="INPUT FILE  (.DAT)",
                  font=self._f("Segoe UI Semibold", 8),
-                 bg=self.BG, fg=self.TEXT_DIM).grid(
-                 row=grid_row, column=0, columnspan=2, sticky="w", pady=(0, self._s(4)))
+                 bg=self.BG, fg=self.TEXT_DIM).pack(side="left")
+        tk.Label(header, text="·  Browse or Drag 'n Drop File Here",
+                 font=self._f("Segoe UI Semibold", 8),
+                 bg=self.BG, fg=self.TEXT_DIM).pack(side="left", padx=(self._s(8), 0))
         file_row = tk.Frame(parent, bg=self.BG)
         file_row.grid(row=grid_row + 1, column=0, columnspan=2,
                       sticky="ew", pady=(0, self._s(12)))
         file_row.columnconfigure(0, weight=1)
-        tk.Entry(file_row, textvariable=self._input_path,
+        self._input_entry = tk.Entry(file_row, textvariable=self._input_path,
                  font=self._f("Consolas", 10),
                  bg=self.SURFACE, fg=self.TEXT, insertbackground=self.TEXT,
                  relief="flat", highlightthickness=1,
                  highlightbackground=self.BORDER,
-                 highlightcolor=self.ACCENT).grid(
-                 row=0, column=0, sticky="ew",
-                 ipady=self._s(8), ipadx=self._s(8))
+                 highlightcolor=self.ACCENT)
+        self._input_entry.grid(row=0, column=0, sticky="ew",
+                               ipady=self._s(8), ipadx=self._s(8))
+        self._register_input_dnd(self._input_entry)
         self._pill_btn(file_row, "Browse", self._browse).grid(
                  row=0, column=1, padx=(self._s(8), 0))
 
@@ -156,8 +164,40 @@ class BaseModule(tk.Frame):
             title="Select DAT file",
             filetypes=[("DAT files", "*.dat *.DAT"), ("All files", "*.*")])
         if path:
-            self._input_path.set(path)
-            self._reset()
+            self._load_input(path)
+
+    def _load_input(self, path):
+        """Set the input file and reset the preview. Browse and drop both route here."""
+        self._input_path.set(path)
+        self._reset()
+
+    # ── Drag-and-drop input ────────────────────────────────────────────────────
+    def _register_input_dnd(self, widget):
+        try:
+            widget.drop_target_register(DND_FILES)
+            widget.dnd_bind("<<DropEnter>>", self._on_input_drag_enter)
+            widget.dnd_bind("<<DropLeave>>", self._on_input_drag_leave)
+            widget.dnd_bind("<<Drop>>",      self._on_input_drop)
+        except Exception:
+            pass
+
+    def _on_input_drag_enter(self, event):
+        self._input_entry.config(highlightbackground=self.ACCENT)
+        return event.action
+
+    def _on_input_drag_leave(self, event):
+        self._input_entry.config(highlightbackground=self.BORDER)
+        return event.action
+
+    def _on_input_drop(self, event):
+        self._input_entry.config(highlightbackground=self.BORDER)
+        try:
+            paths = self.tk.splitlist(event.data)
+        except Exception:
+            paths = [event.data]
+        if paths:
+            self._load_input(paths[0])
+        return event.action
 
     def _start_conversion(self, *process_args):
         self._btn_run.config(state="disabled", text="Converting…")

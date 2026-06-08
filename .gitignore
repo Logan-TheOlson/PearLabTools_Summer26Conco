@@ -1,0 +1,20 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# PyInstaller / build output
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+
+# JetBrains IDE
+# (.idea/workspace.xml is already tracked; run `git rm --cached -r .idea` to untrack)
+.idea/

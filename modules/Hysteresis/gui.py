@@ -291,10 +291,9 @@ class VSMModule(BaseModule):
             self._result_lbl.config(fg=self.ERROR)
             return None
 
-    def _browse(self):
-        super()._browse()
-        if self._input_path.get():
-            self._detect_bands(self._input_path.get())
+    def _load_input(self, path):
+        super()._load_input(path)
+        self._detect_bands(path)
 
     def _reset(self):
         self._reset_common()

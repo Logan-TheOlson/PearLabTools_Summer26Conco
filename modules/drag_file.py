@@ -2,24 +2,26 @@ import os
 import tkinter as tk
 from tkinterdnd2 import DND_FILES, COPY
 
+from modules import theme
+
 class FileDragWidget(tk.Frame):
 
     def __init__(self, parent, path="", **kwargs):
-        kwargs.setdefault("bg", "#313130")
+        kwargs.setdefault("bg", theme.SURFACE)
         super().__init__(parent, **kwargs,
                          highlightthickness=1,
-                         highlightbackground="#c8982a",
+                         highlightbackground=theme.ACCENT,
                          cursor="fleur")
         self._path = path
         self._build()
 
     def _build(self):
         tk.Label(self, text="CSV", font=("Segoe UI", 9),
-                 bg=self["bg"], fg="#c8982a").pack(side="left", padx=(8, 0), pady=6)
+                 bg=self["bg"], fg=theme.ACCENT).pack(side="left", padx=(8, 0), pady=6)
         self._name_lbl = tk.Label(self,
                                    text=os.path.basename(self._path) if self._path else "—",
                                    font=("Consolas", 8),
-                                   bg=self["bg"], fg="#e8e8e8")
+                                   bg=self["bg"], fg=theme.TEXT)
         self._name_lbl.pack(side="left", padx=(4, 10), pady=6)
 
         # Register this frame and its children as drag sources
