@@ -40,7 +40,7 @@ from modules.theme import (
 
 MODULES = [
     ("Hysteresis", "DAT → CSV", VSMModule),
-    ("Low Temp. 1 Telsa", "DAT → CSV", LT1TModule),
+    ("Low Temp. 1 Tesla", "DAT → CSV", LT1TModule),
     ("Zero Field Cooling",   "DAT → CSV", ZFCModule),
     ("Room Temp. SIRM",     "DAT → CSV", RTSIRMModule),
 ]

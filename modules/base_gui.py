@@ -1,4 +1,4 @@
-"""Base class for all Orange Lab Tools module panels."""
+"""Base class for all Pear Tools module panels."""
 import tkinter as tk
 from tkinter import filedialog
 import threading
