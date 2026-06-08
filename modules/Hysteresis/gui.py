@@ -120,7 +120,7 @@ class VSMModule(BaseModule):
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=self.BG)
         fig_frame.pack(fill="both", expand=True,
-                       padx=self._s(28), pady=(self._s(10), 0))
+                       padx=self._s(40), pady=(self._s(10), 0))
         self._subplot_kw = SUBPLOT_KW
         self._fig, self._canvas = self._make_canvas(fig_frame)
         self._ax_raw  = self._fig.add_subplot(1, 2, 1)

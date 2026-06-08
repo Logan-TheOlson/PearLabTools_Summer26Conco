@@ -3,7 +3,7 @@ from modules.base_gui import BaseModule
 from .processing import process_dat
 
 SUBPLOT_KW = dict(left=0.12, right=0.97, top=0.91, bottom=0.18)
-COLOR_ZFC  = "#f5883a"
+COLOR_ZFC  = "#c8982a"
 COLOR_FC   = "#6ba3f5"
 
 
@@ -20,7 +20,7 @@ class ZFCModule(BaseModule):
     def _build_preview(self):
         fig_frame = tk.Frame(self, bg=self.BG)
         fig_frame.pack(fill="both", expand=True,
-                       padx=self._s(28), pady=(self._s(10), 0))
+                       padx=self._s(40), pady=(self._s(10), 0))
         self._subplot_kw = SUBPLOT_KW
         self._fig, self._canvas = self._make_canvas(fig_frame)
         self._ax = self._fig.add_subplot(1, 1, 1)

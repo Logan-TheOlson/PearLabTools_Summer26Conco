@@ -19,14 +19,14 @@ class BaseModule(tk.Frame):
     FONT_SCALE = 1.0
 
     # ── Palette ───────────────────────────────────────────────────────────────
-    BG         = "#13151a"
-    SURFACE    = "#1e2028"
-    BORDER     = "#383530"
-    ACCENT     = "#f5883a"
-    ACCENT_DIM = "#6b3c18"
-    TEXT       = "#ede0d0"
-    TEXT_DIM   = "#8a8478"
-    GRID_COLOR = "#272520"
+    BG         = "#282826"
+    SURFACE    = "#313130"
+    BORDER     = "#454540"
+    ACCENT     = "#c8982a"
+    ACCENT_DIM = "#a07820"
+    TEXT       = "#e8e8e8"
+    TEXT_DIM   = "#7a7a7a"
+    GRID_COLOR = "#353533"
     SUCCESS    = "#5dd6a0"
     ERROR      = "#f07070"
 
