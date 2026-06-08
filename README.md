@@ -58,13 +58,18 @@ Tkinter ships with Python, so no extra install is needed for the GUI itself.
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
+pyinstaller "Pear Tools.spec"
+```
+
+The executable is written to `dist\Pear Tools.exe`. The committed `Pear Tools.spec` is the
+canonical build recipe (one-file, windowed, bundled icon). To regenerate the spec from scratch:
+
+```powershell
 pyinstaller --onefile --windowed --name "Pear Tools" --icon=icon.ico --add-data "icon.ico;." main.py
 ```
 
-The executable is written to `dist\Pear Tools.exe`. Drag-and-drop support (`tkinterdnd2`) is
-bundled automatically via `pyinstaller-hooks-contrib`. PyInstaller also generates a
-`Pear Tools.spec` you can commit if you want a reproducible recipe. The `build/` and `dist/`
-folders are generated output and are git-ignored.
+Drag-and-drop support (`tkinterdnd2`) is bundled automatically via `pyinstaller-hooks-contrib`.
+The `build/` and `dist/` folders are generated output and are git-ignored.
 
 ## Project layout
 
