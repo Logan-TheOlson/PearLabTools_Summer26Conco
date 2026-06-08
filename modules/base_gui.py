@@ -6,6 +6,7 @@ import threading
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from modules.drag_file import FileDragWidget
@@ -157,6 +158,91 @@ class BaseModule(tk.Frame):
         self._fig.subplots_adjust(**self._subplot_kw)
         self._canvas.draw_idle()
 
+    # ── Box zoom: drag a rectangle to zoom in, double-click to reset ─────────────
+
+    def _enable_zoom(self, *axes):
+        """Drag a box on any of ``axes`` to zoom into it; double-click to reset."""
+        self._zoom_axes  = list(axes)
+        self._zoom_start = None      # (ax, x0, y0, px0, py0) while dragging
+        self._zoom_rect  = None      # rubber-band Rectangle
+        self._zoom_bg    = None      # cached background for blitting
+        self._zoom_on    = False     # True once the user has zoomed in
+        self._zoom_home  = {}        # id(ax) -> (xlim, ylim) of the full view
+        self._canvas.get_tk_widget().config(cursor="crosshair")
+        self._canvas.mpl_connect("draw_event",           self._zoom_cache_home)
+        self._canvas.mpl_connect("button_press_event",   self._zoom_press)
+        self._canvas.mpl_connect("motion_notify_event",  self._zoom_motion)
+        self._canvas.mpl_connect("button_release_event", self._zoom_release)
+
+    def _zoom_cache_home(self, _event):
+        # Remember the full (un-zoomed) view so double-click can restore it exactly.
+        if self._zoom_on or self._zoom_start is not None:
+            return
+        for ax in self._zoom_axes:
+            self._zoom_home[id(ax)] = (ax.get_xlim(), ax.get_ylim())
+
+    def _cancel_zoom(self):
+        if self._zoom_rect is not None:
+            try:
+                self._zoom_rect.remove()
+            except Exception:
+                pass
+        self._zoom_rect = self._zoom_bg = self._zoom_start = None
+
+    def _zoom_clamped_xy(self, ax, event):
+        """Event position in data coords, clamped to the axes (works past the edges)."""
+        x, y = ax.transData.inverted().transform((event.x, event.y))
+        lo_x, hi_x = sorted(ax.get_xlim())
+        lo_y, hi_y = sorted(ax.get_ylim())
+        return min(max(x, lo_x), hi_x), min(max(y, lo_y), hi_y)
+
+    def _zoom_press(self, event):
+        if event.button != 1 or event.inaxes not in self._zoom_axes:
+            return
+        if event.dblclick:                       # reset to the cached full view
+            self._cancel_zoom()
+            self._zoom_on = False
+            for ax in self._zoom_axes:
+                home = self._zoom_home.get(id(ax))
+                if home:
+                    ax.set_xlim(home[0])
+                    ax.set_ylim(home[1])
+            self._canvas.draw_idle()
+            return
+        ax = event.inaxes
+        self._zoom_start = (ax, event.xdata, event.ydata, event.x, event.y)
+        self._zoom_rect = Rectangle((event.xdata, event.ydata), 0, 0,
+                                    facecolor=self.ACCENT, edgecolor=self.ACCENT,
+                                    alpha=0.25, linewidth=1, animated=True, zorder=20)
+        ax.add_patch(self._zoom_rect)
+        self._canvas.draw()                      # animated rect is skipped -> clean bg
+        self._zoom_bg = self._canvas.copy_from_bbox(ax.bbox)
+
+    def _zoom_motion(self, event):
+        if self._zoom_start is None or event.x is None or event.y is None:
+            return
+        ax, x0, y0, _, _ = self._zoom_start
+        x1, y1 = self._zoom_clamped_xy(ax, event)
+        self._zoom_rect.set_bounds(x0, y0, x1 - x0, y1 - y0)
+        self._canvas.restore_region(self._zoom_bg)
+        ax.draw_artist(self._zoom_rect)
+        self._canvas.blit(ax.bbox)
+
+    def _zoom_release(self, event):
+        if self._zoom_start is None:
+            return
+        ax, x0, y0, px0, py0 = self._zoom_start
+        ok = (event.x is not None and event.y is not None
+              and abs(event.x - px0) > 6 and abs(event.y - py0) > 6)
+        if ok:
+            x1, y1 = self._zoom_clamped_xy(ax, event)
+        self._cancel_zoom()
+        if ok:
+            self._zoom_on = True
+            ax.set_xlim(min(x0, x1), max(x0, x1))
+            ax.set_ylim(min(y0, y1), max(y0, y1))
+        self._canvas.draw_idle()
+
     # ── Shared behaviour ───────────────────────────────────────────────────────
 
     def _browse(self):
@@ -168,6 +254,7 @@ class BaseModule(tk.Frame):
 
     def _load_input(self, path):
         """Set the input file and reset the preview. Browse and drop both route here."""
+        self._zoom_on = False
         self._input_path.set(path)
         self._reset()
 
@@ -200,6 +287,7 @@ class BaseModule(tk.Frame):
         return event.action
 
     def _start_conversion(self, *process_args):
+        self._zoom_on = False
         self._btn_run.config(state="disabled", text="Converting…")
         self._status_cb("Processing…", self.ACCENT)
 

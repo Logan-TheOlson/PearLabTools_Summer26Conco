@@ -25,6 +25,7 @@ class RTSIRMModule(BaseModule):
         self._fig.subplots_adjust(**SUBPLOT_KW)
         self._refresh_ax()
         fig_frame.bind("<Configure>", self._on_resize)
+        self._enable_zoom(self._ax)
 
     def _refresh_ax(self):
         self._style_ax(self._ax,

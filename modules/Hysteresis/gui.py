@@ -132,6 +132,7 @@ class VSMModule(BaseModule):
         self._style_axes()
         self._on_para_toggle()
         fig_frame.bind("<Configure>", self._on_resize)
+        self._enable_zoom(self._ax_raw, self._ax_corr)
 
     def _make_checkbox_canvas(self, parent, var):
         size = self._s(20)
