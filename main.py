@@ -12,6 +12,7 @@ from modules.Hysteresis.gui import VSMModule
 from modules.LT_1T.gui import LT1TModule
 from modules.ZFC.gui import ZFCModule
 from modules.RTSIRM.gui import RTSIRMModule
+from modules.Mossbauer.gui import MossbauerModule
 
 def resource_path(relative):
     if hasattr(sys, '_MEIPASS'):
@@ -43,6 +44,7 @@ MODULES = [
     ("Low Temp. 1 Tesla", "DAT → CSV", LT1TModule),
     ("Zero Field Cooling",   "DAT → CSV", ZFCModule),
     ("Room Temp. SIRM",     "DAT → CSV", RTSIRMModule),
+    ("Mössbauer",           "DAT → CSV", MossbauerModule),
 ]
 
 def _hwnd(widget):
@@ -110,7 +112,7 @@ class App(TkinterDnD.Tk):
             except Exception:
                 pass
 
-        # Load icon — use .ico (png was removed)
+        # Load icon
         self._icon_img    = None
         self._taskbar_img = None
         try:
@@ -450,7 +452,6 @@ class App(TkinterDnD.Tk):
     def _set_status(self, msg, color=TEXT_DIM):
         self._status.set(msg)
         self._status_lbl.config(fg=color)
-
 
 if __name__ == "__main__":
     app = App()

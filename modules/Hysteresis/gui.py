@@ -1,7 +1,7 @@
 import tkinter as tk
 import pandas as pd
 
-from modules.base_gui import BaseModule
+from modules.base_gui import BaseModule, RoundedButton
 from .processing import process_dat, DEFAULT_BANDS
 
 BAND_COLOR_CYCLE = [
@@ -72,13 +72,13 @@ class VSMModule(BaseModule):
         chk_lbl.pack(side="left")
         chk_lbl.bind("<Button-1>", lambda e: self._toggle_para())
 
-        self._btn_run = tk.Button(action_row, text="Convert & Save",
-                                  font=self._f("Segoe UI Semibold", 10),
-                                  bg=self.ACCENT, fg=self.BG, relief="flat",
-                                  activebackground=self.ACCENT_DIM,
-                                  activeforeground=self.TEXT,
-                                  cursor="hand2", command=self._run,
-                                  padx=self._s(20), pady=self._s(8))
+        self._btn_run = RoundedButton(action_row, text="Convert & Save",
+                                     command=self._run,
+                                     radius=5,
+                                     bg=self.ACCENT, hover_bg=self.ACCENT_DIM,
+                                     fg=self.BG,
+                                     font=self._f("Segoe UI Semibold", 10),
+                                     padx=self._s(20), pady=self._s(8))
         self._btn_run.grid(row=0, column=2, padx=(self._s(10), 0))
 
     def _build_readouts(self):
