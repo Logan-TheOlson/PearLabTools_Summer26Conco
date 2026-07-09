@@ -62,25 +62,23 @@ def compute_band(band, remove_paramagnetic=True):
                 "Ms": None, "Mr": None, "Hc": None}
 
     x, y  = band["Field (T)"].to_numpy(), band["Magnetization (A m^2/kg)"].to_numpy()
-    corrected = Ms = Mr = Hc = roots = None
+    corrected = Ms = Mr = Hc = None
 
     if remove_paramagnetic:
-        roots = get_roots(x, y)
-        if roots is not None:
-            slope     = roots_to_slope(roots, x, y)
-            corrected = y - slope * x
+        slope, left_mask, right_mask = _high_field_slope(x, y)
+        corrected = y - slope * x
 
-            # Ms: mean |magnetization| across the high-field saturation wings
-            left_vals  = corrected[x < roots[0]]
-            right_vals = corrected[x > roots[-1]]
-            wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
-            if wing_means:
-                Ms = float(np.mean(np.abs(wing_means)))
+        # Ms: mean |magnetization| across the same high-field wings used for slope
+        left_vals  = corrected[left_mask]
+        right_vals = corrected[right_mask]
+        wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
+        if wing_means:
+            Ms = float(np.mean(np.abs(wing_means)))
 
-            Mr = _interpolate_at_zero(x, corrected)   # M at H=0
-            Hc = _interpolate_at_zero(corrected, x)   # H at M=0
+        Mr = _interpolate_at_zero(x, corrected)
+        Hc = _interpolate_at_zero(corrected, x)
 
-    return {"x": x, "y": y, "corrected": corrected, "roots": roots,
+    return {"x": x, "y": y, "corrected": corrected, "roots": None,
             "Ms": Ms, "Mr": Mr, "Hc": Hc}
 
 
@@ -124,6 +122,23 @@ def _interpolate_at_zero(independent, dependent):
     return float(np.mean(vals)) if vals else None
 
 
+def _high_field_slope(x, y, fraction=0.20):
+    """Return (slope, left_mask, right_mask) using the outer `fraction` of each field extreme.
+
+    Thresholds are computed independently per side so asymmetric sweeps work correctly.
+    """
+    x_min, x_max = float(np.min(x)), float(np.max(x))
+    left_mask  = x < x_min * (1.0 - fraction)
+    right_mask = x > x_max * (1.0 - fraction)
+    if left_mask.sum() < 2 or right_mask.sum() < 2:
+        slope = np.polyfit(x, y, 1)[0]
+    else:
+        left_slope  = np.polyfit(x[left_mask],  y[left_mask],  1)[0]
+        right_slope = np.polyfit(x[right_mask], y[right_mask], 1)[0]
+        slope = (left_slope + right_slope) / 2
+    return slope, left_mask, right_mask
+
+
 def get_roots(x, y):
     # roots of the 3rd derivative of a Chebyshev fit mark the saturation boundaries
     w = np.polynomial.chebyshev.chebfit(x, y, 5)
@@ -136,11 +151,3 @@ def get_roots(x, y):
     return real_roots
 
 
-def roots_to_slope(roots, x, y):
-    left_mask  = x < roots[0]
-    right_mask = x > roots[-1]
-    if left_mask.sum() < 2 or right_mask.sum() < 2:
-        return np.polyfit(x, y, 1)[0]
-    left_slope  = np.polyfit(x[left_mask],  y[left_mask],  1)[0]
-    right_slope = np.polyfit(x[right_mask], y[right_mask], 1)[0]
-    return (left_slope + right_slope) / 2
