@@ -65,12 +65,14 @@ def compute_band(band, remove_paramagnetic=True):
     corrected = Ms = Mr = Hc = None
 
     if remove_paramagnetic:
-        slope, left_mask, right_mask = _high_field_slope(x, y)
+        slope, left_mask, right_mask = _las_slope(x, y)
         corrected = y - slope * x
 
-        # Ms: mean |magnetization| across the same high-field wings used for slope
-        left_vals  = corrected[left_mask]
-        right_vals = corrected[right_mask]
+        # Ms: mean |magnetization| in the outermost 15% of each wing (tighter than the
+        # LAS fit window so transition-region data doesn't bias the saturation estimate)
+        _, lm_ms, rm_ms = _high_field_slope(x, y, fraction=0.15)
+        left_vals  = corrected[lm_ms]
+        right_vals = corrected[rm_ms]
         wing_means = [np.mean(v) for v in (left_vals, right_vals) if len(v) > 0]
         if wing_means:
             Ms = float(np.mean(np.abs(wing_means)))
@@ -122,6 +124,71 @@ def _interpolate_at_zero(independent, dependent):
     return float(np.mean(vals)) if vals else None
 
 
+def _las_slope(x, y, fraction=0.50):
+    """Return (χ, left_mask, right_mask) by fitting the Law of Approach to Saturation.
+
+    Fits M = ±Ms·(1 − b/H²) + χ·H to both high-field wings simultaneously using
+    Levenberg-Marquardt.  The b/H² term absorbs approach-to-saturation curvature so
+    that χ is not inflated by samples that haven't fully saturated at max field.
+
+    Falls back to a simple linear wing fit if there are too few points.
+    """
+    x_min, x_max = float(np.min(x)), float(np.max(x))
+    left_mask  = x < x_min * (1.0 - fraction)
+    right_mask = x > x_max * (1.0 - fraction)
+
+    if left_mask.sum() < 4 or right_mask.sum() < 4:
+        return _high_field_slope(x, y, fraction=fraction)
+
+    xl, yl = x[left_mask], y[left_mask]
+    xr, yr = x[right_mask], y[right_mask]
+
+    # Stack both wings; sign = −1 for left (negative saturation), +1 for right
+    xw   = np.concatenate([xl, xr])
+    yw   = np.concatenate([yl, yr])
+    sign = np.concatenate([-np.ones(len(xl)), np.ones(len(xr))])
+
+    Ms0 = float(np.mean(np.abs([np.mean(yl), np.mean(yr)])))
+    th  = np.array([Ms0, 0.0, 0.0])   # [Ms, b, chi]
+
+    def _res(t):
+        Ms, b, chi = t
+        return yw - (sign * Ms * (1.0 - b / (xw**2 + 1e-20)) + chi * xw)
+
+    def _jac(t):
+        Ms, b, chi = t
+        h2 = xw**2 + 1e-20
+        return np.column_stack([
+            sign * (1.0 - b / h2),   # ∂/∂Ms
+            -sign * Ms / h2,          # ∂/∂b
+            xw,                       # ∂/∂chi
+        ])
+
+    lam  = 1e-3
+    cost = float(np.dot(_res(th), _res(th)))
+    for _ in range(200):
+        r   = _res(th)
+        J   = _jac(th)
+        JtJ = J.T @ J
+        damp = lam * np.diag(np.maximum(np.diag(JtJ), 1e-10))
+        try:
+            step = np.linalg.solve(JtJ + damp, J.T @ r)
+        except np.linalg.LinAlgError:
+            break
+        th_new      = th + step
+        th_new[0]   = abs(th_new[0])   # Ms must be non-negative
+        c_new = float(np.dot(_res(th_new), _res(th_new)))
+        if c_new < cost:
+            th, cost = th_new, c_new
+            lam = max(lam / 3.0, 1e-10)
+        else:
+            lam = min(lam * 3.0, 1e10)
+            if lam > 1e9:
+                break
+
+    return float(th[2]), left_mask, right_mask
+
+
 def _high_field_slope(x, y, fraction=0.20):
     """Return (slope, left_mask, right_mask) using the outer `fraction` of each field extreme.
 
@@ -131,7 +198,19 @@ def _high_field_slope(x, y, fraction=0.20):
     left_mask  = x < x_min * (1.0 - fraction)
     right_mask = x > x_max * (1.0 - fraction)
     if left_mask.sum() < 2 or right_mask.sum() < 2:
-        slope = np.polyfit(x, y, 1)[0]
+        # Fraction too conservative for this dataset — use the outermost N points per side
+        # sorted by field magnitude.  Fitting the full loop gives slope ≈ 0 (branches cancel).
+        n_pts = max(2, len(x) // 10)
+        order = np.argsort(x)
+        l_idx = order[:n_pts]
+        r_idx = order[-n_pts:]
+        left_slope  = np.polyfit(x[l_idx], y[l_idx], 1)[0]
+        right_slope = np.polyfit(x[r_idx], y[r_idx], 1)[0]
+        slope = (left_slope + right_slope) / 2
+        left_mask  = np.zeros(len(x), dtype=bool)
+        right_mask = np.zeros(len(x), dtype=bool)
+        left_mask[l_idx]  = True
+        right_mask[r_idx] = True
     else:
         left_slope  = np.polyfit(x[left_mask],  y[left_mask],  1)[0]
         right_slope = np.polyfit(x[right_mask], y[right_mask], 1)[0]

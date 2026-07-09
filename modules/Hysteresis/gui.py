@@ -1,4 +1,5 @@
 import tkinter as tk
+import statistics
 import pandas as pd
 
 from modules.base_gui import BaseModule, RoundedButton
@@ -258,7 +259,6 @@ class VSMModule(BaseModule):
 
     def _detect_bands(self, input_path):
         try:
-            import pandas as pd
             with open(input_path, "r") as f:
                 lines = f.readlines()
             data_start = next(
@@ -269,8 +269,22 @@ class VSMModule(BaseModule):
                              usecols=["Temperature (K)", "Moment (emu)"])
             df = df.dropna(subset=["Moment (emu)"])
             df = df.loc[df["Moment (emu)"].astype(float) != 0]
-            bands = sorted(set(round(t / 10) * 10
-                               for t in df["Temperature (K)"].astype(float)))
+            temps = sorted(df["Temperature (K)"].astype(float))
+            if not temps:
+                return
+            # Cluster temperatures separated by >5 K into distinct bands, then use
+            # each cluster's median as the band centre.  Rounding to the nearest 10 K
+            # (the old approach) produced phantom bands for measurements at e.g. 105 K
+            # (→ 110 K) that the ±1 K filter in process_dat could never match.
+            _GAP = 5.0
+            bands = []
+            cluster = [temps[0]]
+            for t in temps[1:]:
+                if t - cluster[-1] > _GAP:
+                    bands.append(round(statistics.median(cluster)))
+                    cluster = []
+                cluster.append(t)
+            bands.append(round(statistics.median(cluster)))
             if bands:
                 self._bands_placeholder = bands
                 if self._using_placeholder:
