@@ -266,9 +266,9 @@ class VSMModule(BaseModule):
             if data_start is None:
                 return
             df = pd.read_csv(input_path, skiprows=data_start + 1, sep=",",
-                             usecols=["Temperature (K)", "Moment (emu)"])
-            df = df.dropna(subset=["Moment (emu)"])
-            df = df.loc[df["Moment (emu)"].astype(float) != 0]
+                             usecols=["Temperature (K)", "AC Moment (emu)"])
+            df = df.dropna(subset=["AC Moment (emu)"])
+            df = df.loc[df["AC Moment (emu)"].astype(float) != 0]
             temps = sorted(df["Temperature (K)"].astype(float))
             if not temps:
                 return

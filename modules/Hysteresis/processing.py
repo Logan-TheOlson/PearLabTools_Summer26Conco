@@ -41,12 +41,6 @@ def process_dat(input_path, band_temps=None, remove_paramagnetic=True):
         band = band.drop(columns=[c for c in band.columns if "Moment" in c], errors="ignore")
         band.columns = [f"{c} [{label}]" for c in band.columns]
 
-        # field column is shared across bands so only the first band keeps it
-        if first_field_added:
-            band = band.drop(columns=[c for c in band.columns if "Field" in c], errors="ignore")
-        else:
-            first_field_added = True
-
         frames.append(band)
 
     stem     = os.path.splitext(dat_name)[0]
@@ -83,9 +77,8 @@ def compute_band(band, remove_paramagnetic=True):
     return {"x": x, "y": y, "corrected": corrected, "roots": None,
             "Ms": Ms, "Mr": Mr, "Hc": Hc}
 
-
 def _branch_split(x):
-    """Index where the field sweep reverses direction (the turnaround point)."""
+    # Index where the field sweep reverses direction (the turnaround point)
     n = len(x)
     min_i, max_i = int(np.argmin(x)), int(np.argmax(x))
     if 0 < min_i < n - 1:
@@ -96,11 +89,10 @@ def _branch_split(x):
 
 
 def _first_crossing(independent, dependent):
-    """
-    Walk along the branch and return |dependent| at the FIRST zero-crossing of
-    independent.  Taking only the first crossing per branch prevents spurious
-    extra crossings (noise, field dithering) from polluting the result.
-    """
+    # Walk along the branch and return |dependent| at the FIRST zero-crossing of
+    # independent.  Taking only the first crossing per branch prevents spurious
+    # extra crossings (noise, field dithering) from polluting the result.
+
     for i in range(len(independent) - 1):
         a, b = independent[i], independent[i + 1]
         if a * b <= 0 and a != b:
@@ -110,11 +102,9 @@ def _first_crossing(independent, dependent):
 
 
 def _interpolate_at_zero(independent, dependent):
-    """
-    Average |dependent| at the first zero-crossing of independent on each of
-    the two sweep branches.  Splitting by branch means noise or dithering near
-    zero can only produce one crossing per branch instead of many.
-    """
+    # Average |dependent| at the first zero-crossing of independent on each of
+    # the two sweep branches.  Splitting by branch means noise or dithering near
+    # zero can only produce one crossing per branch instead of many.
     mid  = _branch_split(independent)
     vals = []
     for sl in (slice(0, mid + 1), slice(mid, None)):
@@ -125,14 +115,12 @@ def _interpolate_at_zero(independent, dependent):
 
 
 def _las_slope(x, y, fraction=0.50):
-    """Return (χ, left_mask, right_mask) by fitting the Law of Approach to Saturation.
+    # Return (χ, left_mask, right_mask) by fitting the Law of Approach to Saturation.
+    # Fits M = ±Ms·(1 − b/H²) + χ·H to both high-field wings simultaneously using
+    # Levenberg-Marquardt.  The b/H² term absorbs approach-to-saturation curvature so
+    # that χ is not inflated by samples that haven't fully saturated at max field.
+    # Falls back to a simple linear wing fit if there are too few points.
 
-    Fits M = ±Ms·(1 − b/H²) + χ·H to both high-field wings simultaneously using
-    Levenberg-Marquardt.  The b/H² term absorbs approach-to-saturation curvature so
-    that χ is not inflated by samples that haven't fully saturated at max field.
-
-    Falls back to a simple linear wing fit if there are too few points.
-    """
     x_min, x_max = float(np.min(x)), float(np.max(x))
     left_mask  = x < x_min * (1.0 - fraction)
     right_mask = x > x_max * (1.0 - fraction)
@@ -190,16 +178,13 @@ def _las_slope(x, y, fraction=0.50):
 
 
 def _high_field_slope(x, y, fraction=0.20):
-    """Return (slope, left_mask, right_mask) using the outer `fraction` of each field extreme.
+    # Return (slope, left_mask, right_mask) using the outer `fraction` of each field extreme.
+    # Thresholds are computed independently per side so asymmetric sweeps work correctly.
 
-    Thresholds are computed independently per side so asymmetric sweeps work correctly.
-    """
     x_min, x_max = float(np.min(x)), float(np.max(x))
     left_mask  = x < x_min * (1.0 - fraction)
     right_mask = x > x_max * (1.0 - fraction)
     if left_mask.sum() < 2 or right_mask.sum() < 2:
-        # Fraction too conservative for this dataset — use the outermost N points per side
-        # sorted by field magnitude.  Fitting the full loop gives slope ≈ 0 (branches cancel).
         n_pts = max(2, len(x) // 10)
         order = np.argsort(x)
         l_idx = order[:n_pts]

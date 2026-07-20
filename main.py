@@ -13,6 +13,7 @@ from modules.LT_1T.gui import LT1TModule
 from modules.ZFC.gui import ZFCModule
 from modules.RTSIRM.gui import RTSIRMModule
 from modules.Mossbauer.gui import MossbauerModule
+from modules.ACSusc.gui import ACSuscModule
 
 def resource_path(relative):
     if hasattr(sys, '_MEIPASS'):
@@ -45,6 +46,7 @@ MODULES = [
     ("Zero Field Cooling",   "DAT → CSV", ZFCModule),
     ("Room Temp. SIRM",     "DAT → CSV", RTSIRMModule),
     ("Mössbauer",           "DAT → CSV", MossbauerModule),
+    ("AC Susceptibility",   "DAT → CSV", ACSuscModule),
 ]
 
 def _hwnd(widget):
